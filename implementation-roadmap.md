@@ -31,15 +31,15 @@ IMPORTANT: All phases are only tackled step by step and for each stage the conce
    - ✅ Set up environment configuration
    - ✅ Add health check endpoint
 
-2. **Database Schema Design**
+2. **Database Schema Design** 🟡 PARTLY COMPLETED
    - ✅ Customer table with optician-specific fields
    - Products table for inventory management
    - Appointments table for scheduling
 
-3. **Supabase Integration**
-   - Configure Supabase client in FastAPI
-   - Set up connection pooling
-   - Implement database migrations
+3. **Supabase Integration** 🟡 PARTLY COMPLETED
+   - ✅ Configure Supabase client in FastAPI
+   - ✅ Set up connection pooling
+   - ✅ Implement database migrations
    - Configure authentication
 
 ### Phase 2: Core API Development
@@ -140,8 +140,8 @@ project-root/
 
 ## Next Immediate Steps
 1. ✅ Create FastAPI backend project structure
-2. ✅ Design and implement customer database schema
-3. Set up Supabase connection and basic CRUD operations
+2. ✅ Design and implement customer database schema  
+3. ✅ Set up Supabase connection and basic CRUD operations
 4. Create customer management API endpoints
 5. Build customer creation modal and form in frontend
 6. Connect frontend form to backend API

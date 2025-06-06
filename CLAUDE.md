@@ -73,3 +73,11 @@ The application structure follows Next.js conventions:
 - **Clean, modern design** - Implement proper spacing and visual hierarchy
 - **Interactive states** - Add hover effects and smooth transitions for better UX
 - **Color coding** - Use consistent colors for status indicators and actions
+
+#### 2. Navigation System
+- **Sidebar Component**: Collapsible navigation with "Visual" branding
+- **Navigation Items**: Simplified to 2 main sections:
+  - "Kunden" (Customers) - currently active page
+  - "Produkte" (Products) - future section
+- **NavBarItem Component**: Reusable component with active/inactive states
+- **Styling**: Light gray active state (`bg-[#EEEFF1]`) matching design reference
