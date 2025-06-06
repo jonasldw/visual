@@ -32,7 +32,7 @@ IMPORTANT: All phases are only tackled step by step and for each stage the conce
    - ✅ Add health check endpoint
 
 2. **Database Schema Design**
-   - Customer table with optician-specific fields
+   - ✅ Customer table with optician-specific fields
    - Products table for inventory management
    - Appointments table for scheduling
 
@@ -140,7 +140,7 @@ project-root/
 
 ## Next Immediate Steps
 1. ✅ Create FastAPI backend project structure
-2. Design and implement customer database schema
+2. ✅ Design and implement customer database schema
 3. Set up Supabase connection and basic CRUD operations
 4. Create customer management API endpoints
 5. Build customer creation modal and form in frontend
