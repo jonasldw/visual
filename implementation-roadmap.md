@@ -150,11 +150,8 @@ IMPORTANT: All phases are only tackled step by step and for each stage the conce
   - Buttons: "Neuer Kunde", "Bearbeiten", "Speichern", "Abbrechen"
   - Messages: "Kunde erfolgreich erstellt", "Fehler beim Speichern"
 
-#### 4. **State Management**
-   - React Query for server state management
+#### 4. **State Management** 🔵 SKIP FOR NOW
    - Optimistic updates for better UX
-   - Real-time updates via WebSocket/Server-Sent Events
-   - Form state management with react-hook-form
 
 ## Technical Considerations
 
@@ -200,8 +197,8 @@ project-root/
 2. ✅ Design and implement customer database schema  
 3. ✅ Set up Supabase connection and basic CRUD operations
 4. ✅ Create customer management API endpoints
-5. Build customer creation modal and form in frontend
-6. Connect frontend form to backend API
+5. ✅ Build customer creation modal and form in frontend
+6. ✅ Connect frontend form to backend API
 7. Implement real-time data synchronization
 
 ## Follow-up Tasks (Post-MVP - ignore for now!)
@@ -213,6 +210,14 @@ project-root/
 - Support for multiple languages in the future
 - Date/time formatting based on locale
 - Currency and number formatting
+
+### Real-time updates via WebSocket/Server-Sent Events
+
+  🟡 FUTURE CONSIDERATION
+  - Why: Server Actions + revalidatePath work well for single-user scenarios
+  - Current approach: Data refreshes after form submissions automatically
+  - When needed: Multi-user concurrent editing scenarios
+  - Priority: Phase 4+ feature
 
 ### Real-time Features
    - Live customer data updates

@@ -264,7 +264,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {new Date(customer.lastExam).toLocaleDateString()}
+                  {customer.lastExam === 'Nie' ? 'Nie' : new Date(customer.lastExam).toLocaleDateString('de-DE')}
                 </td>
                 <td className="px-4 py-3">
                   <div className="text-sm text-gray-700 max-w-xs" title={customer.prescription}>
@@ -275,7 +275,9 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {customer.nextAppointment === 'Overdue' 
                     ? <span className="text-red-600 font-medium">Überfällig</span>
-                    : new Date(customer.nextAppointment).toLocaleDateString()
+                    : customer.nextAppointment === 'Nicht geplant' 
+                      ? 'Nicht geplant'
+                      : new Date(customer.nextAppointment).toLocaleDateString('de-DE')
                   }
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">

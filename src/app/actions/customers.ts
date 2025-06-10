@@ -59,6 +59,9 @@ export async function createCustomerAction(
       }
     }
 
+    console.log('🔍 Customer data to submit:', customerData)
+    console.log('🌐 API Base URL:', process.env.NEXT_PUBLIC_API_BASE_URL)
+    
     const customer = await api.customers.create(customerData)
     revalidatePath('/')
     
@@ -68,9 +71,17 @@ export async function createCustomerAction(
       message: 'Kunde erfolgreich erstellt'
     }
   } catch (error) {
+    console.error('❌ Server Action Error:', error)
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      type: typeof error,
+      error
+    })
+    
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Fehler beim Erstellen des Kunden'
+      error: error instanceof Error ? error.message : 'Internal server error'
     }
   }
 }

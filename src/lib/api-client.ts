@@ -63,6 +63,8 @@ export interface ApiError {
 // API Client configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
+console.log('🔧 API Client initialized with base URL:', API_BASE_URL);
+
 // Generic request function with error handling
 async function request<T>(
   endpoint: string,
@@ -83,8 +85,11 @@ async function request<T>(
     config.body = JSON.stringify(config.body);
   }
 
+  console.log('🌐 Making API request:', { url, method: config.method || 'GET', body: config.body });
+  
   try {
     const response = await fetch(url, config);
+    console.log('📡 API Response:', { status: response.status, statusText: response.statusText, url });
     
     // Handle non-2xx responses
     if (!response.ok) {
@@ -92,6 +97,7 @@ async function request<T>(
       
       try {
         const errorData = await response.json();
+        console.error('💥 API Error Response:', errorData);
         errorMessage = errorData.detail || errorMessage;
       } catch {
         // If JSON parsing fails, use the default message

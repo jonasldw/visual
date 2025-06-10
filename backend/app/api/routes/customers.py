@@ -1,5 +1,5 @@
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from supabase import Client
 from app.database import get_database
@@ -126,6 +126,13 @@ async def create_customer(
         # Convert Pydantic model to dict for Supabase
         customer_data = customer.model_dump(exclude_unset=True)
         
+        # Convert date/datetime objects to strings for JSON serialization
+        for key, value in customer_data.items():
+            if isinstance(value, datetime):
+                customer_data[key] = value.isoformat()
+            elif isinstance(value, date):
+                customer_data[key] = value.isoformat()
+        
         # Execute insert
         result = db.table('customers').insert(customer_data).execute()
         
@@ -185,6 +192,13 @@ async def update_customer(
         
         if not update_data:
             raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Convert date/datetime objects to strings for JSON serialization
+        for key, value in update_data.items():
+            if isinstance(value, datetime):
+                update_data[key] = value.isoformat()
+            elif isinstance(value, date):
+                update_data[key] = value.isoformat()
         
         # Execute update
         result = db.table('customers').update(update_data).eq('id', customer_id).execute()
