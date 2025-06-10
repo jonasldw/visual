@@ -1,5 +1,6 @@
 import asyncio
 from typing import AsyncGenerator, Optional
+from fastapi import HTTPException
 from supabase import create_client, Client
 from supabase.client import ClientOptions
 from app.config import settings
@@ -29,18 +30,9 @@ class SupabaseClient:
             if not settings.SUPABASE_URL or not settings.SUPABASE_KEY:
                 raise ValueError("SUPABASE_URL and SUPABASE_KEY must be set")
             
-            # Configure client options for better performance
-            options = ClientOptions(
-                auto_refresh_token=True,
-                persist_session=True,
-                storage_key=f"supabase-{settings.PROJECT_NAME}",
-                realtime={"timeout": 10000}
-            )
-            
             self._client = create_client(
                 settings.SUPABASE_URL,
-                settings.SUPABASE_KEY,
-                options=options
+                settings.SUPABASE_KEY
             )
             
             logger.info("Supabase client initialized successfully")
