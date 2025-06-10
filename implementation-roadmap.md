@@ -76,24 +76,81 @@ IMPORTANT: All phases are only tackled step by step and for each stage the conce
    ```
 
 ### Phase 3: Frontend Integration
-1. **API Client Setup** ✅ COMPLETED
+#### 1. **API Client Setup** ✅ COMPLETED
    - Configure axios/fetch client for FastAPI
    - Add environment variables for API base URL
    - Implement error handling and retry logic
    - Add loading states management
 
-2. **Integrate API Client with CustomersTable** ✅ COMPLETED
+#### 2. **Integrate API Client with CustomersTable** ✅ COMPLETED
    - Connect CustomersTable component to real FastAPI endpoints
    - Replace static data with API calls to display database data
    - Add loading states and error handling
    - Test end-to-end data flow from database to frontend
 
-3. **Form Components**
-   - CustomerForm component with validation
-   - Modal wrapper for create/edit operations
-   - Connect forms to API client for create/update operations
+#### 3. **Form Components Implementation Plan (Server Actions)** ✅ COMPLETED
 
-4. **State Management**
+  Objective: Create customer creation/editing functionality using React 19 Server Actions pattern.
+
+  Implementation Steps:
+
+   Step 1: Create Server Actions ✅
+
+  - ✅ File: src/app/actions/customers.ts - Created
+  - ✅ Functions: createCustomerAction, updateCustomerAction - Implemented
+  - ✅ Features: Extract/validate form data, call API server-side, return structured states, use revalidatePath('/') - All present
+
+  Step 2: Create CustomerForm Component ✅
+
+  - ✅ File: src/app/components/CustomerForm.tsx - Created
+  - ✅ Type: Client Component using useActionState - Correct
+  - ✅ Features: German labels, all customer fields, loading states, error/success display, create/edit modes - All implemented
+
+  Step 3: Create Modal Component ✅
+
+  - ✅ File: src/app/components/Modal.tsx - Created
+  - ✅ Features: Reusable wrapper, overlay click-to-close, focus management, responsive - All implemented
+
+  Step 4: Integrate with CustomersTable ✅
+
+  - ✅ Modified: src/app/components/CustomersTable.tsx - Done
+  - ✅ "Neuer Kunde" button - Present (via TopBar context integration)
+  - ✅ "Bearbeiten" button per row - Present
+  - ✅ Modal state management - Enhanced with Context
+  - ✅ Pass customer data to edit modal - Working
+
+  Step 5: Update Page Layout ✅
+
+  - ✅ Modified: src/app/page.tsx - Done
+  - ✅ Server Actions work with existing data fetching - Confirmed
+
+  Technical Patterns ✅
+
+  - ✅ Server Action pattern with 'use server' - Implemented
+  - ✅ Form Component pattern with useActionState - Implemented
+  - ✅ Expected Results: All modal behaviors work - Confirmed
+  - ✅ German Localization - Present
+
+  What we ADDED (Improvements):
+
+  ✅ Context Provider - Better state management than prop drilling✅ Custom Hook - useCustomerModal() with TypeScript safety✅ Server Component - Kept page.tsx as Server Component (better
+  performance)
+
+  Expected Results:
+
+  - Click "Neuer Kunde" → Modal opens with empty form
+  - Fill form → Submit → New customer appears in table automatically
+  - Click "Bearbeiten" → Modal opens with existing customer data
+  - Edit form → Submit → Customer data updates in table automatically
+  - All with built-in loading states and error handling
+
+  German Localization:
+
+  - Form labels: "Vorname", "Nachname", "E-Mail", etc.
+  - Buttons: "Neuer Kunde", "Bearbeiten", "Speichern", "Abbrechen"
+  - Messages: "Kunde erfolgreich erstellt", "Fehler beim Speichern"
+
+#### 4. **State Management**
    - React Query for server state management
    - Optimistic updates for better UX
    - Real-time updates via WebSocket/Server-Sent Events
