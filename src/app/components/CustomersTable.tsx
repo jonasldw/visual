@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Customer as ApiCustomer } from '@/lib/api-client'
 
 interface Customer {
   id: string
@@ -15,74 +16,77 @@ interface Customer {
   phone: string
 }
 
-const mockData: Customer[] = [
-  {
-    id: 'CUS-001',
-    name: 'Sarah Johnson',
-    lastExam: '2023-06-15',
-    prescription: 'OD: -2.50 -0.75 x 180 | OS: -2.25 -0.50 x 170',
-    nextAppointment: '2024-06-15',
-    insurance: 'VSP Vision',
-    status: 'active',
-    purchaseHistory: 3,
-    email: 'sarah.j@email.com',
-    phone: '(555) 123-4567'
-  },
-  {
-    id: 'CUS-002',
-    name: 'Michael Chen',
-    lastExam: '2022-11-20',
-    prescription: 'OD: -1.75 SPH | OS: -1.50 SPH',
-    nextAppointment: '2024-11-20',
-    insurance: 'EyeMed',
-    status: 'due',
-    purchaseHistory: 5,
-    email: 'mchen@email.com',
-    phone: '(555) 234-5678'
-  },
-  {
-    id: 'CUS-003',
-    name: 'Emma Williams',
-    lastExam: '2021-09-10',
-    prescription: 'OD: +1.25 -0.50 x 090 | OS: +1.00 -0.25 x 085',
-    nextAppointment: 'Overdue',
-    insurance: 'Davis Vision',
-    status: 'overdue',
-    purchaseHistory: 2,
-    email: 'emma.w@email.com',
-    phone: '(555) 345-6789'
-  },
-  {
-    id: 'CUS-004',
-    name: 'James Wilson',
-    lastExam: '2023-08-05',
-    prescription: 'OD: -3.00 -1.25 x 045 | OS: -3.25 -1.00 x 135',
-    nextAppointment: '2024-08-05',
-    insurance: 'Anthem Blue Cross',
-    status: 'active',
-    purchaseHistory: 7,
-    email: 'jwilson@email.com',
-    phone: '(555) 456-7890'
-  },
-  {
-    id: 'CUS-005',
-    name: 'Olivia Brown',
-    lastExam: '2023-03-22',
-    prescription: 'OD: Plano | OS: Plano (Reading: +1.50)',
-    nextAppointment: '2025-03-22',
-    insurance: 'United Healthcare',
-    status: 'active',
-    purchaseHistory: 1,
-    email: 'olivia.b@email.com',
-    phone: '(555) 567-8901'
+// Function to transform API data to table format
+function transformApiCustomer(apiCustomer: ApiCustomer): Customer {
+  // Create prescription string from individual values
+  const prescriptionParts = []
+  if (apiCustomer.prescription_sphere_right !== undefined || apiCustomer.prescription_cylinder_right !== undefined) {
+    const rightSphere = apiCustomer.prescription_sphere_right || 0
+    const rightCylinder = apiCustomer.prescription_cylinder_right || 0
+    const rightAxis = apiCustomer.prescription_axis_right || 0
+    prescriptionParts.push(`OD: ${rightSphere > 0 ? '+' : ''}${rightSphere.toFixed(2)} ${rightCylinder !== 0 ? `${rightCylinder > 0 ? '+' : ''}${rightCylinder.toFixed(2)} x ${rightAxis.toString().padStart(3, '0')}` : 'SPH'}`)
   }
-]
+  if (apiCustomer.prescription_sphere_left !== undefined || apiCustomer.prescription_cylinder_left !== undefined) {
+    const leftSphere = apiCustomer.prescription_sphere_left || 0
+    const leftCylinder = apiCustomer.prescription_cylinder_left || 0
+    const leftAxis = apiCustomer.prescription_axis_left || 0
+    prescriptionParts.push(`OS: ${leftSphere > 0 ? '+' : ''}${leftSphere.toFixed(2)} ${leftCylinder !== 0 ? `${leftCylinder > 0 ? '+' : ''}${leftCylinder.toFixed(2)} x ${leftAxis.toString().padStart(3, '0')}` : 'SPH'}`)
+  }
+  const prescription = prescriptionParts.length > 0 ? prescriptionParts.join(' | ') : 'Kein Rezept'
 
-export default function CustomersTable() {
-  const [customers] = useState<Customer[]>(mockData)
+  // Determine status based on API status and next appointment
+  let status: 'active' | 'due' | 'overdue' = 'active'
+  if (apiCustomer.status === 'interessent') {
+    status = 'due'
+  } else if (apiCustomer.status === 'inaktiv' || apiCustomer.status === 'archiviert') {
+    status = 'overdue'
+  }
+
+  // Format next appointment
+  let nextAppointment = 'Nicht geplant'
+  if (apiCustomer.next_appointment) {
+    const appointmentDate = new Date(apiCustomer.next_appointment)
+    const now = new Date()
+    if (appointmentDate < now) {
+      nextAppointment = 'Overdue'
+      status = 'overdue'
+    } else {
+      nextAppointment = apiCustomer.next_appointment
+    }
+  }
+
+  return {
+    id: apiCustomer.id.toString(),
+    name: `${apiCustomer.first_name} ${apiCustomer.last_name}`,
+    lastExam: apiCustomer.last_exam_date || 'Nie',
+    prescription,
+    nextAppointment,
+    insurance: apiCustomer.insurance_provider || 'Unbekannt',
+    status,
+    purchaseHistory: 0, // We don't have this data yet
+    email: apiCustomer.email || '',
+    phone: apiCustomer.phone || apiCustomer.mobile || ''
+  }
+}
+
+
+interface CustomersTableProps {
+  customers: ApiCustomer[]
+  totalCustomers: number
+  error: string | null
+}
+
+export default function CustomersTable({ customers: apiCustomers, totalCustomers, error }: CustomersTableProps) {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
-  const [sortColumn, setSortColumn] = useState<keyof Customer | null>(null)
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  
+  // Transform API customers to table format
+  const customers = apiCustomers.map(transformApiCustomer)
+  
+  // DEBUG: Log the data transformation
+  if (apiCustomers.length > 0) {
+    console.log('🔍 Raw API Customer:', apiCustomers[0])
+    console.log('🔄 Transformed Customer:', customers[0])
+  }
 
   const handleSelectAll = () => {
     if (selectedRows.size === customers.length) {
@@ -113,6 +117,26 @@ export default function CustomersTable() {
       default:
         return 'bg-gray-100 text-gray-700'
     }
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-white overflow-hidden">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="text-red-600 mb-2">⚠️ Fehler beim Laden der Daten</div>
+            <div className="text-gray-600 text-sm">{error}</div>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Erneut versuchen
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -267,7 +291,7 @@ export default function CustomersTable() {
       {/* Pagination */}
       <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-100">
         <div className="flex items-center text-sm text-gray-500">
-          <span>Zeige 1-5 von 5 Kunden</span>
+          <span>Zeige 1-{customers.length} von {totalCustomers} Kunden</span>
         </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>

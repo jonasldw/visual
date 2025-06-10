@@ -51,13 +51,13 @@ IMPORTANT: All phases are only tackled step by step and for each stage the conce
    - ✅ `DELETE /api/v1/customers/{id}` - Soft delete customer
    - ✅ API endpoints tested and working with Supabase database
 
-2. **Products Management API**
+2. **Products Management API** 🔵 SKIP FOR NOW
    - `GET /api/products` - List products
    - `POST /api/products` - Add new product
    - `PUT /api/products/{id}` - Update product
    - `DELETE /api/products/{id}` - Remove product
 
-3. **Data Models (Pydantic)**
+3. **Data Models (Pydantic)** ✅ COMPLETED
    ```python
    class Customer(BaseModel):
        id: Optional[int]
@@ -76,29 +76,28 @@ IMPORTANT: All phases are only tackled step by step and for each stage the conce
    ```
 
 ### Phase 3: Frontend Integration
-1. **API Client Setup**
+1. **API Client Setup** ✅ COMPLETED
    - Configure axios/fetch client for FastAPI
    - Add environment variables for API base URL
    - Implement error handling and retry logic
    - Add loading states management
 
-2. **Form Components**
+2. **Integrate API Client with CustomersTable** ✅ COMPLETED
+   - Connect CustomersTable component to real FastAPI endpoints
+   - Replace static data with API calls to display database data
+   - Add loading states and error handling
+   - Test end-to-end data flow from database to frontend
+
+3. **Form Components**
    - CustomerForm component with validation
    - Modal wrapper for create/edit operations
-   - File upload for customer photos/documents
-   - Date picker for appointments
+   - Connect forms to API client for create/update operations
 
-3. **State Management**
+4. **State Management**
    - React Query for server state management
    - Optimistic updates for better UX
    - Real-time updates via WebSocket/Server-Sent Events
    - Form state management with react-hook-form
-
-3. **Real-time Features**
-   - Live customer data updates
-   - Appointment notifications
-   - Multi-user collaboration indicators
-   - Conflict resolution for concurrent edits
 
 ## Technical Considerations
 
@@ -143,7 +142,7 @@ project-root/
 1. ✅ Create FastAPI backend project structure
 2. ✅ Design and implement customer database schema  
 3. ✅ Set up Supabase connection and basic CRUD operations
-4. Create customer management API endpoints
+4. ✅ Create customer management API endpoints
 5. Build customer creation modal and form in frontend
 6. Connect frontend form to backend API
 7. Implement real-time data synchronization
@@ -158,7 +157,14 @@ project-root/
 - Date/time formatting based on locale
 - Currency and number formatting
 
+### Real-time Features
+   - Live customer data updates
+   - Appointment notifications
+   - Multi-user collaboration indicators
+   - Conflict resolution for concurrent edits
+
 ### Additional Features
+- Add sorting functionality to table
 - Advanced search and filtering
 - Bulk operations (import/export)
 - Email notifications and reminders
