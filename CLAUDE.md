@@ -31,6 +31,26 @@ The application structure follows Next.js conventions:
 - The project uses the new Turbopack bundler for faster development builds
 - Remember to include 'use client' for clientside rendering in every page
 
+## Architecture Overview
+
+### Frontend: Next.js 15.3.3 (Current)
+- App Router with TypeScript
+- Tailwind CSS for styling
+- German localization
+- Real-time UI updates
+
+### Backend: FastAPI (Python)
+- RESTful API endpoints
+- Pydantic models for data validation
+- Async/await for database operations
+- CORS configuration for Next.js frontend
+
+### Database: Supabase PostgreSQL
+- Customer data storage
+- Real-time subscriptions
+- Row-level security
+- Built-in authentication
+
 ## React Implementation Principles
 
 ### Server Components vs Client Components
@@ -81,3 +101,22 @@ The application structure follows Next.js conventions:
   - "Produkte" (Products) - future section
 - **NavBarItem Component**: Reusable component with active/inactive states
 - **Styling**: Light gray active state (`bg-[#EEEFF1]`) matching design reference
+
+## File Structure (Proposed)
+
+```
+project-root/
+├── frontend/ (Next.js - current implementation)
+│   ├── src/app/
+│   ├── components/
+│   └── lib/api-client.ts
+├── backend/ (FastAPI - to be created)
+│   ├── app/
+│   │   ├── api/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── database/
+│   ├── requirements.txt
+│   └── main.py
+└── docker-compose.yml
+```
