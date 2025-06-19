@@ -25,12 +25,13 @@ const mainNavItems = [
     icon: <NotificationIcon />,
     isActive: true,
   },
-  {
-    id: 'products',
-    label: 'Produkte',
-    href: '/products',
-    icon: <TaskIcon />,
-  },
+  // Remove this until products page is built
+  // {
+  //   id: 'products',
+  //   label: 'Produkte',
+  //   href: '/products',
+  //   icon: <TaskIcon />,
+  // },
 ]
 
 
