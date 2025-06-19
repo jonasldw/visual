@@ -1,8 +1,8 @@
 'use client'
 
 import { useActionState, useEffect } from 'react'
-import { createCustomerAction, updateCustomerAction, type ActionState } from '@/app/actions/customers'
-import type { Customer, CustomerStatus, InsuranceType } from '@/lib/api-client'
+import { createCustomerAction, updateCustomerAction } from '@/app/actions/customers'
+import type { Customer } from '@/lib/api-client'
 
 interface CustomerFormProps {
   customer?: Customer

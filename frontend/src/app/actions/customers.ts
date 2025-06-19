@@ -2,13 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { api } from '@/lib/api-client'
-import type { CustomerCreate, CustomerUpdate } from '@/lib/api-client'
+import type { CustomerCreate, InsuranceType, CustomerStatus } from '@/lib/api-client'
 
 export interface ActionState {
   success: boolean
   error?: string
   message?: string
-  customer?: any
+  customer?: unknown
 }
 
 function extractCustomerData(formData: FormData): CustomerCreate {
@@ -24,7 +24,7 @@ function extractCustomerData(formData: FormData): CustomerCreate {
     address_postal_code: formData.get('address_postal_code') as string || undefined,
     address_country: formData.get('address_country') as string || undefined,
     insurance_provider: formData.get('insurance_provider') as string || undefined,
-    insurance_type: formData.get('insurance_type') as any || undefined,
+    insurance_type: formData.get('insurance_type') as InsuranceType || undefined,
     insurance_number: formData.get('insurance_number') as string || undefined,
     last_exam_date: formData.get('last_exam_date') as string || undefined,
     next_appointment: formData.get('next_appointment') as string || undefined,
@@ -40,7 +40,7 @@ function extractCustomerData(formData: FormData): CustomerCreate {
     medical_notes: formData.get('medical_notes') as string || undefined,
     frame_preferences: formData.get('frame_preferences') as string || undefined,
     contact_preference: formData.get('contact_preference') as string || undefined,
-    status: formData.get('status') as any || 'aktiv',
+    status: formData.get('status') as CustomerStatus || 'aktiv',
   }
 }
 
