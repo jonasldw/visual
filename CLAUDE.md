@@ -4,10 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Common Commands
 
+### Frontend (Next.js)
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+### Backend (FastAPI)
+- `cd backend && python -m uvicorn app.main:app --reload` - Start development server
+- `cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000` - Start production server
+- `cd backend && python -m pytest` - Run tests (when configured)
+
+### Development Workflow
+- Run both frontend and backend simultaneously for full-stack development
+- Frontend runs on http://localhost:3000
+- Backend runs on http://localhost:8000
 
 ## Architecture
 
@@ -33,17 +44,19 @@ The application structure follows Next.js conventions:
 
 ## Architecture Overview
 
-### Frontend: Next.js 15.3.3 (Current)
+### Frontend: Next.js 15.3.3 (Deployed on Vercel)
 - App Router with TypeScript
 - Tailwind CSS for styling
 - German localization
 - Real-time UI updates
+- Production: https://your-app.vercel.app
 
-### Backend: FastAPI (Python)
+### Backend: FastAPI (Deployed on Railway)
 - RESTful API endpoints
 - Pydantic models for data validation
 - Async/await for database operations
 - CORS configuration for Next.js frontend
+- Production: https://your-backend.up.railway.app
 
 ### Database: Supabase PostgreSQL
 - Customer data storage
@@ -102,21 +115,33 @@ The application structure follows Next.js conventions:
 - **NavBarItem Component**: Reusable component with active/inactive states
 - **Styling**: Light gray active state (`bg-[#EEEFF1]`) matching design reference
 
-## File Structure (Proposed)
+## File Structure
 
 ```
 project-root/
-├── frontend/ (Next.js - current implementation)
+├── frontend/ (Next.js - deployed on Vercel)
 │   ├── src/app/
 │   ├── components/
 │   └── lib/api-client.ts
-├── backend/ (FastAPI - to be created)
+├── backend/ (FastAPI - deployed on Railway)
 │   ├── app/
 │   │   ├── api/
 │   │   ├── models/
 │   │   ├── schemas/
 │   │   └── database/
 │   ├── requirements.txt
-│   └── main.py
-└── docker-compose.yml
+│   ├── main.py
+│   └── Dockerfile
+├── .github/workflows/
+│   └── backend.yml
+├── docs/
+│   ├── api-client-guidelines.md
+│   └── deployment.md
+└── vercel.json
 ```
+
+## Documentation
+
+For detailed implementation guidelines, see:
+- `docs/api-client-guidelines.md` - TypeScript API client patterns and best practices
+- `docs/deployment.md` - Environment variables, CI/CD, and deployment configuration
