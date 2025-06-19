@@ -68,7 +68,7 @@ console.log('🔧 API Client initialized with base URL:', API_BASE_URL);
 // Generic request function with error handling
 async function request<T>(
   endpoint: string,
-  options: RequestInit & { body?: any } = {}
+  options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   
@@ -79,11 +79,6 @@ async function request<T>(
     },
     ...options,
   };
-
-  // Add body serialization for POST/PUT requests
-  if (options.body && typeof options.body === 'object') {
-    config.body = JSON.stringify(options.body);
-  }
 
   console.log('🌐 Making API request:', { url, method: config.method || 'GET', body: config.body });
   
@@ -152,7 +147,7 @@ export const customerApi = {
   create: async (customer: CustomerCreate): Promise<Customer> => {
     return request<Customer>('/api/v1/customers', {
       method: 'POST',
-      body: customer,
+      body: JSON.stringify(customer),
     });
   },
 
@@ -160,7 +155,7 @@ export const customerApi = {
   update: async (id: number, customer: CustomerUpdate): Promise<Customer> => {
     return request<Customer>(`/api/v1/customers/${id}`, {
       method: 'PUT',
-      body: customer,
+      body: JSON.stringify(customer),
     });
   },
 
