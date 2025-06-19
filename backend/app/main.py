@@ -45,9 +45,11 @@ app = FastAPI(
 )
 
 # Configure CORS
+# During beta, allow all origins. Revisit once auth is enabled.
+allowed_origins = ["*"] if settings.ENVIRONMENT == "production" else [settings.FRONTEND_URL]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],

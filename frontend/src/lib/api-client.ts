@@ -68,7 +68,7 @@ console.log('🔧 API Client initialized with base URL:', API_BASE_URL);
 // Generic request function with error handling
 async function request<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit & { body?: any } = {}
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   
@@ -81,8 +81,8 @@ async function request<T>(
   };
 
   // Add body serialization for POST/PUT requests
-  if (config.body && typeof config.body === 'object') {
-    config.body = JSON.stringify(config.body);
+  if (options.body && typeof options.body === 'object') {
+    config.body = JSON.stringify(options.body);
   }
 
   console.log('🌐 Making API request:', { url, method: config.method || 'GET', body: config.body });
