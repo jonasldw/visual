@@ -3,6 +3,8 @@ import TopBar from './components/TopBar'
 import CustomersTable from './components/CustomersTable'
 import { api, Customer } from '@/lib/api-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   // Fetch data in Server Component
   let customers: Customer[] = []
