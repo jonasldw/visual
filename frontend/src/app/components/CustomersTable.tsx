@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { Customer as ApiCustomer } from '@/lib/api-client'
+import { useCustomerModal } from './providers/CustomerModalProvider'
+import Modal from './Modal'
+import CustomerForm from './CustomerForm'
 
 interface Customer {
   id: string
@@ -78,6 +81,13 @@ interface CustomersTableProps {
 
 export default function CustomersTable({ customers: apiCustomers, totalCustomers, error }: CustomersTableProps) {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
+  const {
+    showCreateModal,
+    showEditModal,
+    editingCustomer,
+    openEditModal,
+    closeAllModals
+  } = useCustomerModal()
   
   // Transform API customers to table format
   const customers = apiCustomers.map(transformApiCustomer)
@@ -117,6 +127,18 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
       default:
         return 'bg-gray-100 text-gray-700'
     }
+  }
+
+  const handleEditCustomer = (customerId: string) => {
+    const customer = apiCustomers.find(c => c.id.toString() === customerId)
+    if (customer) {
+      openEditModal(customer)
+    }
+  }
+
+  const handleModalSuccess = () => {
+    closeAllModals()
+    // Data will be refreshed automatically by revalidatePath in server action
   }
 
   // Error state
@@ -242,7 +264,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {new Date(customer.lastExam).toLocaleDateString()}
+                  {customer.lastExam === 'Nie' ? 'Nie' : new Date(customer.lastExam).toLocaleDateString('de-DE')}
                 </td>
                 <td className="px-4 py-3">
                   <div className="text-sm text-gray-700 max-w-xs" title={customer.prescription}>
@@ -253,7 +275,9 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {customer.nextAppointment === 'Overdue' 
                     ? <span className="text-red-600 font-medium">Überfällig</span>
-                    : new Date(customer.nextAppointment).toLocaleDateString()
+                    : customer.nextAppointment === 'Nicht geplant' 
+                      ? 'Nicht geplant'
+                      : new Date(customer.nextAppointment).toLocaleDateString('de-DE')
                   }
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
@@ -275,6 +299,12 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   {customer.purchaseHistory}
                 </td>
                 <td className="px-4 py-3 text-right">
+                  <button 
+                    onClick={() => handleEditCustomer(customer.id)}
+                    className="text-indigo-600 hover:text-indigo-800 text-sm mr-3"
+                  >
+                    Bearbeiten
+                  </button>
                   <button className="text-blue-600 hover:text-blue-800 text-sm mr-3">
                     Anzeigen
                   </button>
@@ -305,6 +335,33 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
           </button>
         </div>
       </div>
+      
+      {/* Create Customer Modal - controlled by TopBar button via context */}
+      <Modal
+        isOpen={showCreateModal}
+        onClose={closeAllModals}
+        title="Neuen Kunden erstellen"
+      >
+        <CustomerForm
+          onSuccess={handleModalSuccess}
+          onCancel={closeAllModals}
+        />
+      </Modal>
+
+      {/* Edit Customer Modal - controlled by table edit buttons */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={closeAllModals}
+        title="Kunde bearbeiten"
+      >
+        {editingCustomer && (
+          <CustomerForm
+            customer={editingCustomer}
+            onSuccess={handleModalSuccess}
+            onCancel={closeAllModals}
+          />
+        )}
+      </Modal>
     </div>
   )
 }

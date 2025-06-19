@@ -1,3 +1,4 @@
+import { CustomerModalProvider } from './components/providers/CustomerModalProvider'
 import TopBar from './components/TopBar'
 import CustomersTable from './components/CustomersTable'
 import { api, Customer } from '@/lib/api-client'
@@ -18,15 +19,17 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <TopBar />
-      <main className="flex-1 p-4">
-        <CustomersTable 
-          customers={customers}
-          totalCustomers={totalCustomers}
-          error={error}
-        />
-      </main>
-    </div>
-  );
+    <CustomerModalProvider>
+      <div className="flex-1 flex flex-col">
+        <TopBar />
+        <main className="flex-1 p-4">
+          <CustomersTable 
+            customers={customers}
+            totalCustomers={totalCustomers}
+            error={error}
+          />
+        </main>
+      </div>
+    </CustomerModalProvider>
+  )
 }
