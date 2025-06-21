@@ -20,6 +20,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Frontend runs on http://localhost:3000
 - Backend runs on http://localhost:8000
 
+## Project Context
+
+This is an optician/eyewear business management system designed for the German market. The system handles:
+- Customer management with optical prescriptions and insurance data
+- Product catalog for frames, lenses, contact lenses, and accessories
+- Invoice generation with German tax compliance and insurance billing support
+- Multi-tenancy support via organization_id
+
+## Database Schema
+
+The system uses Supabase PostgreSQL with the following core tables:
+- `customers` - Patient/customer data including prescriptions and insurance information
+- `products` - Eyewear inventory (frames, lenses, contacts, accessories)
+- `invoices` - Sales invoices with insurance billing support
+- `invoice_items` - Line items with product snapshots for historical accuracy
+
+For detailed schema documentation, see: `docs/database-schema.md`
+
 ## Architecture
 
 This is a Next.js 15 application using the App Router pattern. Key architectural decisions:
@@ -40,7 +58,7 @@ The application structure follows Next.js conventions:
 - Using React 19 with Next.js 15.3.3
 - ESLint is configured with Next.js Core Web Vitals rules
 - The project uses the new Turbopack bundler for faster development builds
-- Remember to include 'use client' for clientside rendering in every page
+- Only include 'use client' in components that need client-side features (state, effects, event handlers)
 
 ## Architecture Overview
 
@@ -136,7 +154,9 @@ project-root/
 │   └── backend.yml
 ├── docs/
 │   ├── api-client-guidelines.md
-│   └── deployment.md
+│   ├── deployment.md
+│   └── database-schema.md
+├── implementation_roadmap.md
 └── vercel.json
 ```
 
@@ -145,3 +165,5 @@ project-root/
 For detailed implementation guidelines, see:
 - `docs/api-client-guidelines.md` - TypeScript API client patterns and best practices
 - `docs/deployment.md` - Environment variables, CI/CD, and deployment configuration
+- `docs/database-schema.md` - Complete database schema documentation with relationships
+- `implementation_roadmap.md` - Step-by-step implementation guide for the database schema
