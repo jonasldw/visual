@@ -18,6 +18,7 @@ class InsuranceType(str, Enum):
 
 
 class CustomerBase(BaseModel):
+    organization_id: int = Field(default=1, description="Organisation ID für Multi-Tenancy")
     first_name: str = Field(..., min_length=1, max_length=100, description="Vorname")
     last_name: str = Field(..., min_length=1, max_length=100, description="Nachname")
     email: Optional[EmailStr] = Field(None, description="E-Mail-Adresse")
@@ -60,6 +61,7 @@ class CustomerCreate(CustomerBase):
 
 
 class CustomerUpdate(BaseModel):
+    organization_id: Optional[int] = None
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)
     email: Optional[EmailStr] = None

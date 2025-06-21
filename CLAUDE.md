@@ -28,6 +28,19 @@ This is an optician/eyewear business management system designed for the German m
 - Invoice generation with German tax compliance and insurance billing support
 - Multi-tenancy support via organization_id
 
+### German Business Compliance Requirements
+- **Sequential invoice numbering** - Must be gapless per German tax law (GoB compliance)
+- **VAT rates** - Support 19% standard rate and 7% reduced rate for medical devices
+- **Insurance integration** - Split billing between health insurance and patient copay
+- **Historical data preservation** - Product snapshots in invoices for audit compliance
+- **Multi-tenancy** - Support multiple optician businesses in single system
+
+**Implementation Impact**:
+- Invoice numbering uses PostgreSQL sequences with row locking
+- Product data must be snapshotted in invoice_items table
+- Invoice status workflow includes 'insurance_pending' state
+- All financial amounts stored as NUMERIC for precision
+
 ## Database Schema
 
 The system uses Supabase PostgreSQL with the following core tables:
@@ -82,6 +95,18 @@ The application structure follows Next.js conventions:
 - Row-level security
 - Built-in authentication
 
+### Multi-Tenancy Architecture
+- **All tables include organization_id** - Every new table must include `organization_id BIGINT NOT NULL` for data isolation
+- **API endpoints filter by organization** - All Supabase queries must include `.eq('organization_id', organization_id)`
+- **Default organization_id = 1** - Use organization_id = 1 as default for development and single-tenant setups
+- **Row Level Security (RLS)** - Database policies ensure organization-based data isolation
+
+**Implementation Checklist for New Features**:
+- [ ] Database table includes `organization_id` column with index
+- [ ] Pydantic models include `organization_id: int = Field(default=1)`
+- [ ] API endpoints filter by `organization_id` parameter
+- [ ] Frontend API calls pass `organization_id` when needed
+
 ## React Implementation Principles
 
 ### Server Components vs Client Components
@@ -113,11 +138,77 @@ The application structure follows Next.js conventions:
 - **useTransition** - Show pending UI for non-blocking state updates
 - **Streaming SSR** - Use Suspense boundaries to progressively render content
 
+### Server Actions + FastAPI Integration
+- **Server Actions call FastAPI server-side** - Server Actions run on the Next.js server and call the FastAPI backend using the API client
+- **No direct client API calls** - Frontend components should not directly call `api.customers.create()` - instead use Server Actions
+- **API client runs server-side** - The `/lib/api-client.ts` is imported and used within Server Actions, not client components
+- **Data flow**: Form submission → Server Action → API client → FastAPI → Database → revalidatePath() → UI update
+
+**Example Pattern**:
+```typescript
+// ✅ Correct: Server Action calls API client server-side
+async function createCustomerAction(prevState, formData) {
+  'use server'
+  const customerData = extractFormData(formData)
+  const customer = await api.customers.create(customerData) // Server-side API call
+  revalidatePath('/')
+  return { success: true, customer }
+}
+
+// ❌ Incorrect: Client component calling API directly  
+function CustomerForm() {
+  const handleSubmit = async () => {
+    await api.customers.create(data) // Client-side API call - avoid this
+  }
+}
+```
+
 ### Code Quality
 - **Follow existing patterns** - Match the codebase's conventions and style
 - **Keep components pure** - No side effects during render; use useEffect for mutations
 - **Proper cleanup** - Always return cleanup functions from useEffect
 - **Type safety** - Leverage TypeScript's strict mode for better type checking
+
+### API Client Standards
+- **Explicit JSON serialization** - Always use `JSON.stringify(data)` in API calls, never auto-detect
+- **Standard RequestInit types** - Use standard `RequestInit` types instead of complex type manipulation
+- **Server-side API calls** - API client runs in Server Actions on the server, not in client components
+
+**Example**:
+```typescript
+// ✅ Correct: Explicit JSON.stringify
+create: async (customer: CustomerCreate): Promise<Customer> => {
+  return request<Customer>('/api/v1/customers', {
+    method: 'POST',
+    body: JSON.stringify(customer), // Always explicit
+  });
+}
+
+// ❌ Avoid: Auto-detection patterns
+if (options.body && typeof options.body === 'object') {
+  config.body = JSON.stringify(options.body);
+}
+```
+
+### Error Handling Standards
+- **Server Action error responses** - Return `{ success: false, error: string }` structure consistently
+- **API client error handling** - Parse FastAPI error responses and provide user-friendly messages
+- **Form validation** - Combine HTML5 validation with server-side business logic validation
+- **Database constraint errors** - Handle unique constraints and foreign key violations gracefully
+
+**Error Response Pattern**:
+```typescript
+// Server Action error handling
+try {
+  const result = await api.customers.create(customerData)
+  return { success: true, customer: result }
+} catch (error) {
+  return { 
+    success: false, 
+    error: error.message || 'Failed to create customer' 
+  }
+}
+```
 
 ## Styling Approach
 - **Use Tailwind CSS** - Utilize utility classes for consistent styling
