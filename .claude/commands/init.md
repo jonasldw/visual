@@ -1,4 +1,4 @@
-Please read through handover.md, Readme.md and claude.md first
+Please read through /Users/jonasludwig/Visual/handover.md, Readme.md and claude.md first
 
 After that, scan the project, especially the folders /src and /backend to understand the existing foundation.
 

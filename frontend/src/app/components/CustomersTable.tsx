@@ -9,66 +9,29 @@ import CustomerForm from './CustomerForm'
 interface Customer {
   id: string
   name: string
-  lastExam: string
-  prescription: string
-  nextAppointment: string
-  insurance: string
-  status: 'active' | 'due' | 'overdue'
-  purchaseHistory: number
-  email: string
+  address: string
+  lastSaleDate: string | null
+  dateOfBirth: string | null
   phone: string
 }
 
 // Function to transform API data to table format
 function transformApiCustomer(apiCustomer: ApiCustomer): Customer {
-  // Create prescription string from individual values
-  const prescriptionParts = []
-  if (apiCustomer.prescription_sphere_right !== undefined || apiCustomer.prescription_cylinder_right !== undefined) {
-    const rightSphere = apiCustomer.prescription_sphere_right || 0
-    const rightCylinder = apiCustomer.prescription_cylinder_right || 0
-    const rightAxis = apiCustomer.prescription_axis_right || 0
-    prescriptionParts.push(`OD: ${rightSphere > 0 ? '+' : ''}${rightSphere.toFixed(2)} ${rightCylinder !== 0 ? `${rightCylinder > 0 ? '+' : ''}${rightCylinder.toFixed(2)} x ${rightAxis.toString().padStart(3, '0')}` : 'SPH'}`)
+  // Format address
+  const addressParts = []
+  if (apiCustomer.address_street) addressParts.push(apiCustomer.address_street)
+  if (apiCustomer.address_postal_code || apiCustomer.address_city) {
+    addressParts.push(`${apiCustomer.address_postal_code || ''} ${apiCustomer.address_city || ''}`.trim())
   }
-  if (apiCustomer.prescription_sphere_left !== undefined || apiCustomer.prescription_cylinder_left !== undefined) {
-    const leftSphere = apiCustomer.prescription_sphere_left || 0
-    const leftCylinder = apiCustomer.prescription_cylinder_left || 0
-    const leftAxis = apiCustomer.prescription_axis_left || 0
-    prescriptionParts.push(`OS: ${leftSphere > 0 ? '+' : ''}${leftSphere.toFixed(2)} ${leftCylinder !== 0 ? `${leftCylinder > 0 ? '+' : ''}${leftCylinder.toFixed(2)} x ${leftAxis.toString().padStart(3, '0')}` : 'SPH'}`)
-  }
-  const prescription = prescriptionParts.length > 0 ? prescriptionParts.join(' | ') : 'Kein Rezept'
-
-  // Determine status based on API status and next appointment
-  let status: 'active' | 'due' | 'overdue' = 'active'
-  if (apiCustomer.status === 'interessent') {
-    status = 'due'
-  } else if (apiCustomer.status === 'inaktiv' || apiCustomer.status === 'archiviert') {
-    status = 'overdue'
-  }
-
-  // Format next appointment
-  let nextAppointment = 'Nicht geplant'
-  if (apiCustomer.next_appointment) {
-    const appointmentDate = new Date(apiCustomer.next_appointment)
-    const now = new Date()
-    if (appointmentDate < now) {
-      nextAppointment = 'Overdue'
-      status = 'overdue'
-    } else {
-      nextAppointment = apiCustomer.next_appointment
-    }
-  }
+  const address = addressParts.join(', ') || 'Keine Adresse'
 
   return {
     id: apiCustomer.id.toString(),
     name: `${apiCustomer.first_name} ${apiCustomer.last_name}`,
-    lastExam: apiCustomer.last_exam_date || 'Nie',
-    prescription,
-    nextAppointment,
-    insurance: apiCustomer.insurance_provider || 'Unbekannt',
-    status,
-    purchaseHistory: 0, // We don't have this data yet
-    email: apiCustomer.email || '',
-    phone: apiCustomer.phone || apiCustomer.mobile || ''
+    address,
+    lastSaleDate: null, // Will be fetched from invoices later
+    dateOfBirth: apiCustomer.date_of_birth || null,
+    phone: apiCustomer.phone || apiCustomer.mobile || 'Keine Telefonnummer'
   }
 }
 
@@ -114,19 +77,6 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
       newSelected.add(id)
     }
     setSelectedRows(newSelected)
-  }
-
-  const getStatusColor = (status: Customer['status']) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-700'
-      case 'due':
-        return 'bg-yellow-100 text-yellow-700'
-      case 'overdue':
-        return 'bg-red-100 text-red-700'
-      default:
-        return 'bg-gray-100 text-gray-700'
-    }
   }
 
   const handleEditCustomer = (customerId: string) => {
@@ -177,7 +127,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
               </th>
               <th className="px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                  <span>Kunde</span>
+                  <span>Name</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 8l5 5 5-5H5z"/>
                   </svg>
@@ -185,7 +135,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
               </th>
               <th className="px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                  <span>Letzte Untersuchung</span>
+                  <span>Adresse</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 8l5 5 5-5H5z"/>
                   </svg>
@@ -193,7 +143,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
               </th>
               <th className="px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                  <span>Rezept</span>
+                  <span>Letzter Verkaufsdatum</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 8l5 5 5-5H5z"/>
                   </svg>
@@ -201,7 +151,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
               </th>
               <th className="px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                  <span>Nächster Termin</span>
+                  <span>Geburtstag</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 8l5 5 5-5H5z"/>
                   </svg>
@@ -209,23 +159,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
               </th>
               <th className="px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                  <span>Versicherung</span>
-                  <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M5 8l5 5 5-5H5z"/>
-                  </svg>
-                </button>
-              </th>
-              <th className="px-4 py-3 text-left">
-                <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                  <span>Status</span>
-                  <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M5 8l5 5 5-5H5z"/>
-                  </svg>
-                </button>
-              </th>
-              <th className="px-4 py-3 text-center">
-                <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                  <span>Käufe</span>
+                  <span>Telefon</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 8l5 5 5-5H5z"/>
                   </svg>
@@ -257,46 +191,20 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
                       <span className="text-white text-sm font-medium">{customer.name.charAt(0)}</span>
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                      <div className="text-xs text-gray-500">{customer.email}</div>
-                    </div>
+                    <div className="text-sm font-medium text-gray-900">{customer.name}</div>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.lastExam === 'Nie' ? 'Nie' : new Date(customer.lastExam).toLocaleDateString('de-DE')}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="text-sm text-gray-700 max-w-xs" title={customer.prescription}>
-                    <div className="truncate">{customer.prescription.split('|')[0].trim()}</div>
-                    <div className="text-xs text-gray-500 truncate">{customer.prescription.split('|')[1]?.trim()}</div>
-                  </div>
+                  {customer.address}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.nextAppointment === 'Overdue' 
-                    ? <span className="text-red-600 font-medium">Überfällig</span>
-                    : customer.nextAppointment === 'Nicht geplant' 
-                      ? 'Nicht geplant'
-                      : new Date(customer.nextAppointment).toLocaleDateString('de-DE')
-                  }
+                  {customer.lastSaleDate ? new Date(customer.lastSaleDate).toLocaleDateString('de-DE') : '—'}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.insurance}
+                  {customer.dateOfBirth ? new Date(customer.dateOfBirth).toLocaleDateString('de-DE') : '—'}
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex space-x-1">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${getStatusColor(customer.status)}`}>
-                      {customer.status === 'due' ? 'fällig' : customer.status === 'overdue' ? 'überfällig' : 'aktiv'}
-                    </span>
-                    {customer.status === 'due' && (
-                      <span className="inline-flex px-2 py-1 text-xs font-medium rounded bg-orange-100 text-orange-800">
-                        erinnerung
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-700 text-center">
-                  {customer.purchaseHistory}
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  {customer.phone}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button 
