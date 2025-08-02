@@ -182,8 +182,8 @@ async def get_product(
 
 @router.put("/products/{product_id}", response_model=ProductResponse)
 async def update_product(
-    product_id: int = Path(..., description="Product ID"),
     product_update: ProductUpdate,
+    product_id: int = Path(..., description="Product ID"),
     organization_id: int = Query(1, description="Organization ID"),
     db: Client = Depends(get_database)
 ) -> ProductResponse:

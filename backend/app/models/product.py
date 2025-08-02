@@ -24,8 +24,8 @@ class ProductBase(BaseModel):
     lens_material: Optional[str] = Field(None, max_length=100, description="Glasmaterial")
     lens_coating: Optional[Dict[str, Any]] = Field(None, description="Glasbeschichtungen als JSON")
     details: Optional[Dict[str, Any]] = Field(None, description="Weitere Details als JSON")
-    current_price: Decimal = Field(..., ge=0, decimal_places=2, description="Aktueller Preis")
-    vat_rate: Decimal = Field(default=Decimal("0.19"), ge=0, le=1, decimal_places=2, description="Mehrwertsteuersatz")
+    current_price: Decimal = Field(..., ge=0, description="Aktueller Preis")
+    vat_rate: Decimal = Field(default=Decimal("0.19"), ge=0, le=1, description="Mehrwertsteuersatz")
     insurance_eligible: bool = Field(default=False, description="Kassenfähig")
     active: bool = Field(default=True, description="Aktiv")
 
@@ -46,8 +46,8 @@ class ProductUpdate(BaseModel):
     lens_material: Optional[str] = Field(None, max_length=100)
     lens_coating: Optional[Dict[str, Any]] = None
     details: Optional[Dict[str, Any]] = None
-    current_price: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
-    vat_rate: Optional[Decimal] = Field(None, ge=0, le=1, decimal_places=2)
+    current_price: Optional[Decimal] = Field(None, ge=0)
+    vat_rate: Optional[Decimal] = Field(None, ge=0, le=1)
     insurance_eligible: Optional[bool] = None
     active: Optional[bool] = None
 

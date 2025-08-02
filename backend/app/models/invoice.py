@@ -19,10 +19,10 @@ class InvoiceItemBase(BaseModel):
     product_snapshot: Dict[str, Any] = Field(..., description="Produktdaten zum Zeitpunkt der Rechnung")
     prescription_values: Optional[Dict[str, Any]] = Field(None, description="Rezeptwerte für diesen Artikel")
     quantity: int = Field(default=1, ge=1, description="Menge")
-    unit_price: Decimal = Field(..., ge=0, decimal_places=2, description="Einzelpreis")
-    discount_amount: Decimal = Field(default=Decimal("0"), ge=0, decimal_places=2, description="Rabattbetrag")
-    vat_rate: Decimal = Field(..., ge=0, le=1, decimal_places=2, description="Mehrwertsteuersatz")
-    line_total: Decimal = Field(..., ge=0, decimal_places=2, description="Zeilensumme")
+    unit_price: Decimal = Field(..., ge=0, description="Einzelpreis")
+    discount_amount: Decimal = Field(default=Decimal("0"), ge=0, description="Rabattbetrag")
+    vat_rate: Decimal = Field(..., ge=0, le=1, description="Mehrwertsteuersatz")
+    line_total: Decimal = Field(..., ge=0, description="Zeilensumme")
     insurance_covered: bool = Field(default=False, description="Von Krankenkasse übernommen")
 
 
@@ -35,10 +35,10 @@ class InvoiceItemUpdate(BaseModel):
     product_snapshot: Optional[Dict[str, Any]] = None
     prescription_values: Optional[Dict[str, Any]] = None
     quantity: Optional[int] = Field(None, ge=1)
-    unit_price: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
-    discount_amount: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
-    vat_rate: Optional[Decimal] = Field(None, ge=0, le=1, decimal_places=2)
-    line_total: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
+    unit_price: Optional[Decimal] = Field(None, ge=0)
+    discount_amount: Optional[Decimal] = Field(None, ge=0)
+    vat_rate: Optional[Decimal] = Field(None, ge=0, le=1)
+    line_total: Optional[Decimal] = Field(None, ge=0)
     insurance_covered: Optional[bool] = None
 
 
@@ -59,8 +59,8 @@ class InvoiceBase(BaseModel):
     prescription_snapshot: Optional[Dict[str, Any]] = Field(None, description="Rezeptdaten zum Zeitpunkt der Rechnung")
     insurance_provider: Optional[str] = Field(None, max_length=100, description="Krankenkasse")
     insurance_claim_number: Optional[str] = Field(None, max_length=50, description="Kassenscheinnummer")
-    insurance_coverage_amount: Optional[Decimal] = Field(None, ge=0, decimal_places=2, description="Kassenleistung")
-    patient_copay_amount: Optional[Decimal] = Field(None, ge=0, decimal_places=2, description="Eigenanteil Patient")
+    insurance_coverage_amount: Optional[Decimal] = Field(None, ge=0, description="Kassenleistung")
+    patient_copay_amount: Optional[Decimal] = Field(None, ge=0, description="Eigenanteil Patient")
     status: InvoiceStatus = Field(default=InvoiceStatus.DRAFT, description="Rechnungsstatus")
     payment_method: Optional[str] = Field(None, max_length=50, description="Zahlungsart")
     notes: Optional[str] = Field(None, max_length=1000, description="Notizen")
@@ -78,8 +78,8 @@ class InvoiceUpdate(BaseModel):
     prescription_snapshot: Optional[Dict[str, Any]] = None
     insurance_provider: Optional[str] = Field(None, max_length=100)
     insurance_claim_number: Optional[str] = Field(None, max_length=50)
-    insurance_coverage_amount: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
-    patient_copay_amount: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
+    insurance_coverage_amount: Optional[Decimal] = Field(None, ge=0)
+    patient_copay_amount: Optional[Decimal] = Field(None, ge=0)
     status: Optional[InvoiceStatus] = None
     payment_method: Optional[str] = Field(None, max_length=50)
     notes: Optional[str] = Field(None, max_length=1000)

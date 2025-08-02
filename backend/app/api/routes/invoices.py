@@ -233,8 +233,8 @@ async def get_invoice(
 
 @router.put("/invoices/{invoice_id}", response_model=InvoiceResponse)
 async def update_invoice(
-    invoice_id: int = Path(..., description="Invoice ID"),
     invoice_update: InvoiceUpdate,
+    invoice_id: int = Path(..., description="Invoice ID"),
     organization_id: int = Query(1, description="Organization ID"),
     db: Client = Depends(get_database)
 ) -> InvoiceResponse:
