@@ -190,7 +190,7 @@ export default function ProductsTable({ products: apiProducts, totalProducts, cu
             </tr>
           </thead>
           <tbody className="bg-white">
-            {products.map((product, index) => (
+            {products.map((product) => (
               <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
                 <td className="px-4 py-3">
                   <input

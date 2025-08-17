@@ -6,16 +6,17 @@ import { api, Customer } from '@/lib/api-client'
 export const dynamic = 'force-dynamic'
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string
     page?: string
-  }
+  }>
 }
 
 export default async function Home({ searchParams }: PageProps) {
   // Parse search params
-  const search = searchParams.search || ''
-  const page = parseInt(searchParams.page || '1', 10)
+  const resolvedSearchParams = await searchParams
+  const search = resolvedSearchParams.search || ''
+  const page = parseInt(resolvedSearchParams.page || '1', 10)
   
   // Fetch data in Server Component with search and pagination
   let customers: Customer[] = []

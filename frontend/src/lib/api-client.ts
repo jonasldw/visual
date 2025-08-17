@@ -49,8 +49,8 @@ export interface ProductBase {
   frame_size?: string;
   frame_color?: string;
   lens_material?: string;
-  lens_coating?: Record<string, any>;
-  details?: Record<string, any>;
+  lens_coating?: Record<string, unknown>;
+  details?: Record<string, unknown>;
   current_price: number;
   vat_rate?: number;
   insurance_eligible?: boolean;
@@ -78,8 +78,8 @@ export interface ProductListResponse {
 // Invoice Item interfaces
 export interface InvoiceItemBase {
   product_id?: number;
-  product_snapshot: Record<string, any>;
-  prescription_values?: Record<string, any>;
+  product_snapshot: Record<string, unknown>;
+  prescription_values?: Record<string, unknown>;
   quantity?: number;
   unit_price: number;
   discount_amount?: number;
@@ -103,7 +103,7 @@ export interface InvoiceBase {
   customer_id: number;
   invoice_date?: string;
   due_date?: string;
-  prescription_snapshot?: Record<string, any>;
+  prescription_snapshot?: Record<string, unknown>;
   insurance_provider?: string;
   insurance_claim_number?: string;
   insurance_coverage_amount?: number;
