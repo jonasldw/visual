@@ -20,8 +20,11 @@ interface Product {
 
 // Function to transform API data to table format
 function transformApiProduct(apiProduct: ApiProduct): Product {
-  // Format price with currency, handle potential null/undefined values
-  const price = `${(apiProduct.current_price || 0).toFixed(2)} €`
+  // Format price with currency, handle string/number conversion
+  const priceValue = typeof apiProduct.current_price === 'string' 
+    ? parseFloat(apiProduct.current_price) 
+    : (apiProduct.current_price || 0)
+  const price = `${priceValue.toFixed(2)} €`
   
   // Format brand/model
   const brand = [apiProduct.brand, apiProduct.model].filter(Boolean).join(' ') || 'Keine Marke'
