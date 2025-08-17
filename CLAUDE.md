@@ -163,6 +163,33 @@ function CustomerForm() {
 }
 ```
 
+### Custom UI Component System
+- **Philosophy**: Build custom components inspired by shadcn/ui but tailored to our design system
+- **Research Process**: Always check shadcn/ui implementation via `shadcn mcp` before creating new components
+- **Implementation**: Use shadcn components as blueprints only - never use them directly, build custom versions
+- **Components**: Input, Select, Button, Icon components with consistent APIs and styling
+- **Documentation**: See `docs/ui-component-system.md` for comprehensive component documentation
+- **Location**: All components in `src/app/components/ui/` directory
+
+**Key Components**:
+- **Input**: Form inputs with labels, validation, and error states
+- **Select**: Dropdowns with custom styling and option arrays
+- **Button**: Action buttons with variants, sizes, and icon integration
+- **Icon**: Lucide React wrapper with type safety and consistent sizing
+
+**Usage Pattern**:
+```typescript
+// Form components
+<Input name="email" label="Email" required error={errors.email} />
+<Select name="status" label="Status" options={statusOptions} />
+
+// Buttons with icons
+<Button variant="primary" iconName="Plus">Add Customer</Button>
+<Button size="icon" variant="ghost" iconName="Pencil" />
+```
+
+**Development Process**: Always research shadcn/ui via `shadcn mcp` → adapt to our design system → implement custom version
+
 ### Code Quality
 - **Follow existing patterns** - Match the codebase's conventions and style
 - **Keep components pure** - No side effects during render; use useEffect for mutations

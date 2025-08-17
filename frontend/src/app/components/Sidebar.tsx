@@ -1,15 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import NavBarItem from './NavBarItem'
-
-// Icons as components for better reusability
-const NotificationIcon = () => (
-  <svg height="14px" width="14px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5zm0 0V3" />
-  </svg>
-)
-
+import { Icon } from './ui/Icon'
 
 // Navigation data structure
 const mainNavItems = [
@@ -17,21 +11,20 @@ const mainNavItems = [
     id: 'customers',
     label: 'Kunden',
     href: '/',
-    icon: <NotificationIcon />,
-    isActive: true,
+    icon: <Icon name="Users" size="sm" />,
   },
-  // Remove this until products page is built
-  // {
-  //   id: 'products',
-  //   label: 'Produkte',
-  //   href: '/products',
-  //   icon: <TaskIcon />,
-  // },
+  {
+    id: 'products',
+    label: 'Produkte',
+    href: '/products',
+    icon: <Icon name="Package" size="sm" />,
+  },
 ]
 
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const pathname = usePathname()
 
   return (
     <nav className={`${isCollapsed ? 'w-16' : 'w-72'} bg-[#FBFBFB] border-r border-gray-200 h-screen flex flex-col transition-all duration-300`}>
@@ -79,7 +72,7 @@ export default function Sidebar() {
                   href={item.href}
                   icon={item.icon}
                   label={item.label}
-                  isActive={item.isActive}
+                  isActive={pathname === item.href}
                   isCollapsed={isCollapsed}
                 />
               ))}

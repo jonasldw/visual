@@ -1,14 +1,35 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCustomerModal } from './providers/CustomerModalProvider'
+import { useProductModal } from './providers/ProductModalProvider'
+
+// Page configuration for dynamic behavior
+const pageConfig = {
+  '/': {
+    title: 'Kunden',
+    buttonText: 'Neuer Kunde',
+    useModalHook: () => useCustomerModal(),
+    searchPlaceholder: 'Kunden suchen...'
+  },
+  '/products': {
+    title: 'Produkte', 
+    buttonText: 'Neues Produkt',
+    useModalHook: () => useProductModal(),
+    searchPlaceholder: 'Produkte suchen...'
+  }
+}
 
 export default function TopBar() {
-  const { openCreateModal } = useCustomerModal()
+  const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
+  
+  // Get current page configuration
+  const currentPageConfig = pageConfig[pathname as keyof typeof pageConfig] || pageConfig['/']
+  const { openCreateModal } = currentPageConfig.useModalHook()
 
   // Debounce search updates
   useEffect(() => {
@@ -22,11 +43,11 @@ export default function TopBar() {
         params.delete('search')
       }
       
-      router.push(`/?${params.toString()}`)
+      router.push(`${pathname}?${params.toString()}`)
     }, 100) // 300ms debounce
 
     return () => clearTimeout(timer)
-  }, [searchQuery])
+  }, [searchQuery, pathname, router, searchParams])
 
   return (
     <div className="bg-white">
@@ -43,7 +64,7 @@ export default function TopBar() {
               <svg className="h-4 w-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
-              <span className="text-blue-600 font-medium">Kunden</span>
+              <span className="text-blue-600 font-medium">{currentPageConfig.title}</span>
             </div>
           </div>
 
@@ -63,7 +84,7 @@ export default function TopBar() {
           <div className="relative flex-1 mr-4">
             <input
               type="text"
-              placeholder="Suchen..."
+              placeholder={currentPageConfig.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -87,7 +108,7 @@ export default function TopBar() {
               <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Neuer Kunde
+              {currentPageConfig.buttonText}
             </button>
           </div>
         </div>
