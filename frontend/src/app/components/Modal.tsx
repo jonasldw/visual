@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect } from 'react'
+import { Button } from './ui/Button'
 
 interface ModalProps {
   isOpen: boolean
@@ -44,24 +45,23 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
           {/* Header */}
           <div className="bg-white px-4 py-3 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-base font-normal text-secondary-default">
                 {title}
               </h3>
-              <button
-                type="button"
-                className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              <Button
+                size="icon"
+                variant="ghost"
                 onClick={onClose}
+                iconName="X"
+                className="text-gray-400 hover:text-gray-500"
               >
                 <span className="sr-only">Schließen</span>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              </Button>
             </div>
           </div>
           
           {/* Content */}
-          <div className="bg-white px-4 py-6">
+          <div className="bg-white px-4 py-4">
             {children}
           </div>
         </div>

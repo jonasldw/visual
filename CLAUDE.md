@@ -212,6 +212,7 @@ try {
 
 ## Styling Approach
 - **Use Tailwind CSS** - Utilize utility classes for consistent styling
+- **Always use Tailwind classes** - Always prefer Tailwind utility classes over arbitrary values or custom CSS
 - **Clean, modern design** - Implement proper spacing and visual hierarchy
 - **Interactive states** - Add hover effects and smooth transitions for better UX
 - **Color coding** - Use consistent colors for status indicators and actions

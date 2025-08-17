@@ -6,57 +6,62 @@ This document provides a handover to the next agent responsible for implementing
 
 ## Status Summary
 
-### ✅ Completed (Backend)
-- Database schema implementation (Products, Invoices, Invoice_Items)
-- FastAPI endpoints with full CRUD operations
-- Pydantic models and validation
-- API client extensions in TypeScript
-- Sequential invoice numbering system (German compliance)
-- Multi-tenancy support via organization_id
+### ✅ Completed (Backend & Infrastructure)
+- **Database schema implementation** (Products, Invoices, Invoice_Items)
+- **FastAPI endpoints** with full CRUD operations
+- **API client extensions** in TypeScript with Products/Invoices methods
+- **Customer management frontend** with working search/pagination (recently optimized)
+- **Sequential invoice numbering** system (German compliance)
+- **Multi-tenancy support** via organization_id
+- **Search performance optimization** (reduced from 1.6s to ~800ms by eliminating duplicate queries)
 
-### 🎯 Next Phase (Frontend)
-- Server Actions for Products and Invoices
-- UI components and forms
-- Navigation updates
-- Integration with existing customer workflow
+### 🎯 Next Phase (Frontend Implementation Required)
+- **Products management UI** (forms, tables, modals)
+- **Invoices management UI** (complex forms with line items)
+- **Navigation updates** (add Products section to sidebar)
+- **Server Actions** for Products and Invoices
+- **Modal providers** for state management
 
-## Architecture Foundation
+## Critical Architecture References
 
-**Key Documentation to Review:**
+**Essential Reading:**
 - `CLAUDE.md` - Complete project guidelines and architectural principles
 - `docs/api-client-guidelines.md` - TypeScript patterns and best practices
 - `old-md/server-actions.md` - Detailed Server Actions architecture
 - `old-md/react-context.md` - Modal state management patterns
 
-**Critical Architecture Points:**
-- **Server Actions Pattern**: Frontend uses Server Actions that call FastAPI server-side (see `CLAUDE.md` → React Implementation Principles → Server Actions + FastAPI Integration)
-- **No Direct Client API Calls**: Components should NOT directly call `api.products.create()` - use Server Actions instead
-- **Context for Modal State**: Follow existing CustomerModalProvider pattern for new modals
+**Key Architecture Points:**
+- **Server Actions Pattern**: Frontend uses Server Actions that call FastAPI server-side (never direct client API calls)
+- **URL-based search**: Implemented with debouncing for live filtering
+- **Context for Modal State**: Follow existing CustomerModalProvider pattern
+- **German business compliance**: Sequential invoice numbering, VAT rates, insurance billing
 
-## Current Frontend Structure
+## Current Frontend Foundation
 
 ```
 frontend/src/
 ├── app/
 │   ├── actions/
-│   │   └── customers.ts          # Existing Server Actions pattern
+│   │   └── customers.ts          # ✅ Reference implementation
 │   ├── components/
-│   │   ├── CustomerForm.tsx      # Reference implementation
-│   │   ├── CustomersTable.tsx    # Reference implementation  
-│   │   ├── Modal.tsx             # Reusable modal component
-│   │   ├── Sidebar.tsx           # Navigation - needs Products section
+│   │   ├── CustomerForm.tsx      # ✅ Form pattern to follow
+│   │   ├── CustomersTable.tsx    # ✅ Table pattern with search/pagination
+│   │   ├── Modal.tsx             # ✅ Reusable modal component
+│   │   ├── TopBar.tsx            # ✅ Search implementation with debouncing
+│   │   ├── Sidebar.tsx           # ❌ Needs Products section
 │   │   └── providers/
-│   │       └── CustomerModalProvider.tsx  # Context pattern to follow
-│   └── page.tsx                  # Home page with customer list
+│   │       └── CustomerModalProvider.tsx  # ✅ Context pattern to follow
+│   └── page.tsx                  # ✅ Server Component with URL params
 └── lib/
     └── api-client.ts             # ✅ Extended with Products/Invoices APIs
 ```
 
 ## Ready-to-Use Backend APIs
 
-### Products API (`api.products`)
+The API client (`frontend/src/lib/api-client.ts`) already includes:
+
+### Products API
 ```typescript
-// Available methods (see frontend/src/lib/api-client.ts)
 api.products.getAll(params)     // List with pagination/filtering
 api.products.getById(id)        // Single product
 api.products.create(product)    // Create new product
@@ -64,17 +69,13 @@ api.products.update(id, data)   // Update product
 api.products.delete(id)         // Soft delete (set active=false)
 ```
 
-### Invoices API (`api.invoices`)
+### Invoices API
 ```typescript
-// Available methods (see frontend/src/lib/api-client.ts)
 api.invoices.getAll(params)     // List with pagination/filtering
 api.invoices.getById(id)        // Invoice with items
 api.invoices.create(invoice)    // Create with items
 api.invoices.update(id, data)   // Update invoice
-api.invoices.delete(id)         // Delete invoice
 api.invoices.addItem(id, item)  // Add item to invoice
-api.invoices.updateItem(...)    // Update invoice item
-api.invoices.deleteItem(...)    // Delete invoice item
 ```
 
 ## Implementation Roadmap
@@ -133,11 +134,11 @@ api.invoices.deleteItem(...)    // Delete invoice item
    - Currency formatting (€)
    - Date formatting (DD.MM.YYYY)
 
-## Key Implementation Guidelines
+## Key Patterns to Follow
 
-### 1. Server Actions Pattern (Critical)
+### Server Actions (Critical)
 ```typescript
-// ✅ Correct: Server Action calling API server-side
+// ✅ Correct pattern - see actions/customers.ts
 async function createProductAction(prevState, formData) {
   'use server'
   
@@ -145,7 +146,6 @@ async function createProductAction(prevState, formData) {
     name: formData.get('name'),
     product_type: formData.get('product_type'),
     current_price: parseFloat(formData.get('current_price')),
-    // ...
   }
   
   try {
@@ -158,23 +158,49 @@ async function createProductAction(prevState, formData) {
 }
 ```
 
-### 2. Component Patterns
-- **Server Components**: Use for data fetching (page.tsx files)
-- **Client Components**: Use 'use client' only for interactivity (forms, modals)
-- **Modal State**: Use Context providers for modal management
-- **Form Handling**: Use `useActionState` hook with Server Actions
+### Search & Pagination (Recently Implemented)
+- **URL parameters** as single source of truth (`?search=term&page=2`)
+- **Debouncing** in client components (300ms delay)
+- **Server-side filtering** in page.tsx using searchParams
+- **Performance optimized** (single query instead of two)
 
-### 3. German Business Rules
-- **Product Types**: 'frame', 'lens', 'contact_lens', 'accessory'
-- **Invoice Status**: 'draft', 'sent', 'paid', 'partially_paid', 'insurance_pending', 'cancelled'
-- **VAT Rates**: 19% standard, 7% reduced (selectable per product)
-- **Invoice Numbers**: Auto-generated (YYYY-000001 format)
+### Component Architecture
+- **Server Components**: Data fetching in page.tsx
+- **Client Components**: Forms, modals, interactive elements only
+- **Context Providers**: Modal state management
+- **Reusable Components**: Follow existing Modal.tsx pattern
 
-### 4. Multi-Tenancy
-- All API calls include `organization_id: 1` (default for development)
-- Future consideration for multiple organizations
+## German Business Requirements
 
-## Data Relationships
+### Product Types
+- `frame` (Brille)
+- `lens` (Gläser)
+- `contact_lens` (Kontaktlinsen)
+- `accessory` (Zubehör)
+
+### Invoice Status Flow
+- `draft` → `sent` → `paid` / `partially_paid` / `insurance_pending` → `cancelled`
+
+### Tax Compliance
+- **Sequential numbering**: YYYY-000001 format (backend handles this)
+- **VAT rates**: 19% standard, 7% reduced for medical devices
+- **Product snapshots**: Preserve historical data in invoice_items
+
+## Development Environment
+
+### Backend Running
+- FastAPI server on `http://localhost:8000`
+- Auto-reload enabled for development
+- Recently optimized search performance (single query pattern)
+- API docs available at `/docs`
+
+### Frontend Setup
+- Next.js 15 with App Router
+- Tailwind CSS for styling
+- TypeScript with strict mode
+- URL-based search/pagination working
+
+## Data Flow Architecture
 
 ```
 Customer (1) ←→ (n) Invoice (1) ←→ (n) Invoice_Items (n) ←→ (1) Product
@@ -182,39 +208,31 @@ Customer (1) ←→ (n) Invoice (1) ←→ (n) Invoice_Items (n) ←→ (1) Prod
                Auto-calculated totals
 ```
 
-**Key Points:**
-- Invoices link to customers (required)
+**Critical Points:**
+- Invoices require customer selection
 - Invoice items reference products but store snapshots
-- Product snapshots preserve historical data (see `CLAUDE.md` → German Business Compliance)
+- Multi-tenancy via `organization_id: 1` (default)
 
-## Testing Strategy
+## Performance Considerations
 
-**Manual Testing Checklist:**
-1. Create products of different types
-2. Create invoices with multiple line items
-3. Verify automatic invoice numbering
-4. Test customer-invoice relationships
-5. Verify German formatting (currency, dates)
+### Recent Optimizations
+- **Search queries**: Reduced from 1.6s to ~800ms by eliminating duplicate database calls
+- **URL-based state**: Provides shareability and browser history support
+- **Debounced input**: Prevents excessive API calls while typing
 
-**Backend Testing:**
-- Backend endpoints are ready for testing
-- Use FastAPI docs at `http://localhost:8000/docs`
-- All CRUD operations implemented and tested
-
-## Common Patterns Reference
-
-**Form Components**: Follow `CustomerForm.tsx` structure
-**Table Components**: Follow `CustomersTable.tsx` pagination and search
-**Modal Management**: Follow `CustomerModalProvider.tsx` context pattern
-**Server Actions**: Follow `actions/customers.ts` error handling
+### Future Considerations
+- **Component library**: Input component development in progress
+- **Code splitting**: Consider for large forms
+- **Caching**: URL params provide natural caching via browser
 
 ## Ready to Start
 
-1. **Review Documentation**: Start with `CLAUDE.md` React Implementation Principles
-2. **Examine Existing Code**: Study `CustomerForm.tsx` and `CustomersTable.tsx` patterns
-3. **Set Up Development**: Ensure backend is running (`npm run dev` in both frontend and backend)
-4. **Begin with Products**: Start with simpler Products management before complex Invoices
+The foundation is solid with working customer management as a reference. Focus on:
+1. **Following existing patterns** rather than creating new ones
+2. **Products first** (simpler) before complex invoice management
+3. **Server Actions architecture** for all data mutations
+4. **German business rules** for product types and validation
 
-The backend foundation is solid and ready. Focus on following the established patterns and the Server Actions architecture documented in `CLAUDE.md`.
+**Backend is running and ready.** All APIs tested and optimized. The customer module provides a complete reference implementation for the patterns to follow.
 
-**Next Agent: Your implementation should result in a complete Products and Invoices management system that integrates seamlessly with the existing Customers workflow.**
+**Success Metric:** Complete Products and Invoices management that integrates seamlessly with existing customer workflow, maintaining the same UX patterns and performance standards.

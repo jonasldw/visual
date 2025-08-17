@@ -6,6 +6,7 @@ import { Customer as ApiCustomer } from '@/lib/api-client'
 import { useCustomerModal } from './providers/CustomerModalProvider'
 import Modal from './Modal'
 import CustomerForm from './CustomerForm'
+import { Button } from './ui/Button'
 
 interface Customer {
   id: string
@@ -169,12 +170,12 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                 </button>
               </th>
               <th className="px-4 py-3 text-right">
-                <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
+                <div className="flex items-center justify-end space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <span>Aktionen</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 8l5 5 5-5H5z"/>
                   </svg>
-                </button>
+                </div>
               </th>
             </tr>
           </thead>
@@ -210,18 +211,24 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   {customer.phone}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button 
-                    onClick={() => handleEditCustomer(customer.id)}
-                    className="text-indigo-600 hover:text-indigo-800 text-sm mr-3"
-                  >
-                    Bearbeiten
-                  </button>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm mr-3">
-                    Anzeigen
-                  </button>
-                  <button className="text-gray-500 hover:text-gray-700 text-sm">
-                    •••
-                  </button>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleEditCustomer(customer.id)}
+                      iconName="Pencil"
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      iconName="Eye"
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      iconName="EllipsisVertical"
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

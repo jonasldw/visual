@@ -3,6 +3,34 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Visual Optician Brand Colors */
+  --primary-ultra-light: #fbfbfb;
+  --primary-light: #f4f5f6;
+  --primary-medium: #eeeff1;
+  --primary-dark: #E6E7EA;
+  --secondary-placeholder: #9fa1a7;
+  --secondary-tag-hints: #75777c;
+  --secondary-input-title: #5d5e62;
+  --secondary-default: #232529;
+  --highlight-1-light: #EBF2FF;
+  --highlight-1-medium: #ACCBFF;
+  --highlight-1-dark: #4D8EF3;
+  --highlight-2-light: #FFF1F1;
+  --highlight-2-medium: #FCC;
+  --highlight-2-dark: #FE938C;
+  --error-dark: #ea4436;
+  --warning-light: #FFF9E0;
+  --warning-medium: #FFEA5E;
+  --warning-dark: #FFCB0E;
+  --success-light: #E6F7F8;
+  --success-medium: #9ADDB6;
+  --success-dark: #0fc27b;
+  
+  /* Current Button Colors */
+  --indigo-600: #4f46e5;
+  --indigo-700: #4338ca;
+  --indigo-500: #6366f1;
 }
 
 @theme inline {
@@ -10,6 +38,40 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Primary Colors */
+  --color-primary-ultra-light: var(--primary-ultra-light);
+  --color-primary-light: var(--primary-light);
+  --color-primary-medium: var(--primary-medium);
+  --color-primary-dark: var(--primary-dark);
+  
+  /* Secondary Colors */
+  --color-secondary-placeholder: var(--secondary-placeholder);
+  --color-secondary-tag-hints: var(--secondary-tag-hints);
+  --color-secondary-input-title: var(--secondary-input-title);
+  --color-secondary-default: var(--secondary-default);
+  
+  /* Highlight Colors */
+  --color-highlight-1-light: var(--highlight-1-light);
+  --color-highlight-1-medium: var(--highlight-1-medium);
+  --color-highlight-1-dark: var(--highlight-1-dark);
+  --color-highlight-2-light: var(--highlight-2-light);
+  --color-highlight-2-medium: var(--highlight-2-medium);
+  --color-highlight-2-dark: var(--highlight-2-dark);
+  
+  /* Status Colors */
+  --color-error-dark: var(--error-dark);
+  --color-warning-light: var(--warning-light);
+  --color-warning-medium: var(--warning-medium);
+  --color-warning-dark: var(--warning-dark);
+  --color-success-light: var(--success-light);
+  --color-success-medium: var(--success-medium);
+  --color-success-dark: var(--success-dark);
+  
+  /* Current Button Colors */
+  --color-indigo-600: var(--indigo-600);
+  --color-indigo-700: var(--indigo-700);
+  --color-indigo-500: var(--indigo-500);
 }
 
 @media (prefers-color-scheme: dark) {

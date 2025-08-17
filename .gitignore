@@ -23,6 +23,9 @@ backend/.env
 *.swp
 *.swo
 
+# Claude Code
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db
