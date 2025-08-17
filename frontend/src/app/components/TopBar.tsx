@@ -1,12 +1,32 @@
 'use client'
 
-import { useState } from 'react'
-
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCustomerModal } from './providers/CustomerModalProvider'
 
 export default function TopBar() {
   const { openCreateModal } = useCustomerModal()
-  const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
+
+  // Debounce search updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString())
+      
+      if (searchQuery) {
+        params.set('search', searchQuery)
+        params.set('page', '1') // Reset to first page on new search
+      } else {
+        params.delete('search')
+      }
+      
+      router.push(`/?${params.toString()}`)
+    }, 100) // 300ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
   return (
     <div className="bg-white">

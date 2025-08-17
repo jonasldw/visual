@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Customer as ApiCustomer } from '@/lib/api-client'
 import { useCustomerModal } from './providers/CustomerModalProvider'
 import Modal from './Modal'
@@ -39,10 +40,12 @@ function transformApiCustomer(apiCustomer: ApiCustomer): Customer {
 interface CustomersTableProps {
   customers: ApiCustomer[]
   totalCustomers: number
+  currentPage: number
+  search: string
   error: string | null
 }
 
-export default function CustomersTable({ customers: apiCustomers, totalCustomers, error }: CustomersTableProps) {
+export default function CustomersTable({ customers: apiCustomers, totalCustomers, currentPage, search, error }: CustomersTableProps) {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
   const {
     showCreateModal,
@@ -229,18 +232,56 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
       {/* Pagination */}
       <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-100">
         <div className="flex items-center text-sm text-gray-500">
-          <span>Zeige 1-{customers.length} von {totalCustomers} Kunden</span>
+          <span>
+            Zeige {customers.length > 0 ? ((currentPage - 1) * 20 + 1) : 0}-
+            {Math.min(currentPage * 20, totalCustomers)} von {totalCustomers} Kunden
+          </span>
         </div>
         <div className="flex items-center space-x-2">
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>
-            Zurück
-          </button>
-          <button className="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded">
-            1
-          </button>
-          <button className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>
-            Weiter
-          </button>
+          {currentPage > 1 ? (
+            <Link
+              href={`/?${new URLSearchParams({ search, page: (currentPage - 1).toString() }).toString()}`}
+              className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
+            >
+              Zurück
+            </Link>
+          ) : (
+            <button className="px-3 py-1 text-sm text-gray-400 cursor-not-allowed" disabled>
+              Zurück
+            </button>
+          )}
+          
+          {/* Page numbers */}
+          {Array.from({ length: Math.ceil(totalCustomers / 20) }, (_, i) => i + 1)
+            .filter(p => p === 1 || p === Math.ceil(totalCustomers / 20) || Math.abs(p - currentPage) <= 1)
+            .map(pageNum => (
+              pageNum === currentPage ? (
+                <span key={pageNum} className="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded">
+                  {pageNum}
+                </span>
+              ) : (
+                <Link
+                  key={pageNum}
+                  href={`/?${new URLSearchParams({ search, page: pageNum.toString() }).toString()}`}
+                  className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                >
+                  {pageNum}
+                </Link>
+              )
+            ))}
+          
+          {currentPage * 20 < totalCustomers ? (
+            <Link
+              href={`/?${new URLSearchParams({ search, page: (currentPage + 1).toString() }).toString()}`}
+              className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
+            >
+              Weiter
+            </Link>
+          ) : (
+            <button className="px-3 py-1 text-sm text-gray-400 cursor-not-allowed" disabled>
+              Weiter
+            </button>
+          )}
         </div>
       </div>
       

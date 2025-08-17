@@ -5,14 +5,29 @@ import { api, Customer } from '@/lib/api-client'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Home() {
-  // Fetch data in Server Component
+interface PageProps {
+  searchParams: {
+    search?: string
+    page?: string
+  }
+}
+
+export default async function Home({ searchParams }: PageProps) {
+  // Parse search params
+  const search = searchParams.search || ''
+  const page = parseInt(searchParams.page || '1', 10)
+  
+  // Fetch data in Server Component with search and pagination
   let customers: Customer[] = []
   let totalCustomers = 0
   let error: string | null = null
 
   try {
-    const response = await api.customers.getAll()
+    const response = await api.customers.getAll({
+      search,
+      page,
+      per_page: 20
+    })
     customers = response.customers
     totalCustomers = response.total
   } catch (err) {
@@ -28,6 +43,8 @@ export default async function Home() {
           <CustomersTable 
             customers={customers}
             totalCustomers={totalCustomers}
+            currentPage={page}
+            search={search}
             error={error}
           />
         </main>

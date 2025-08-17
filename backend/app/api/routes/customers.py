@@ -70,27 +70,28 @@ async def list_customers(
         
         query = query.order(sort_by, desc=(sort_order == 'desc'))
         
-        # Get total count for pagination
-        count_query = db.table('customers').select('id', count='exact')
+        query = query.range(offset, offset + per_page - 1)
+        
+        result = query.execute()
+        
+        query = db.table('customers').select('*', count='exact')
+        
         if search:
-            count_query = count_query.or_(
+            query = query.or_(
                 f"first_name.ilike.{search_pattern},"
                 f"last_name.ilike.{search_pattern},"
                 f"email.ilike.{search_pattern}"
             )
         if status:
-            count_query = count_query.eq('status', status.value)
+            query = query.eq('status', status.value)
         if insurance_type:
-            count_query = count_query.eq('insurance_type', insurance_type)
+            query = query.eq('insurance_type', insurance_type)
         
-        count_result = count_query.execute()
-        total = count_result.count if count_result.count else 0
-        
-        # Apply pagination
+        query = query.order(sort_by, desc=(sort_order == 'desc'))
         query = query.range(offset, offset + per_page - 1)
         
-        # Execute query
         result = query.execute()
+        total = result.count if result.count else 0
         
         # Convert to Pydantic models
         customers = [Customer(**row) for row in result.data]
