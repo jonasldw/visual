@@ -25,7 +25,7 @@ function extractProductData(formData: FormData): ProductCreate {
     lens_coating: formData.get('lens_coating') ? JSON.parse(formData.get('lens_coating') as string) as Record<string, unknown> : undefined,
     details: formData.get('details') ? JSON.parse(formData.get('details') as string) as Record<string, unknown> : undefined,
     current_price: formData.get('current_price') ? parseFloat(formData.get('current_price') as string) : 0,
-    vat_rate: formData.get('vat_rate') ? parseFloat(formData.get('vat_rate') as string) : 0.19,
+    vat_rate: formData.get('vat_rate') ? parseFloat(formData.get('vat_rate') as string) / 100 : 0.19,
     insurance_eligible: formData.get('insurance_eligible') === 'true',
     active: formData.get('active') !== 'false', // Default to true unless explicitly false
   }
@@ -36,6 +36,13 @@ export async function createProductAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
+    // Debug: Log all form field names and values
+    console.log('🔍 ProductForm FormData entries:')
+    for (const [key, value] of formData.entries()) {
+      console.log(`  "${key}": "${value}"`)
+    }
+    console.log(`🔍 Total FormData entries: ${Array.from(formData.entries()).length}`)
+    
     const productData = extractProductData(formData)
     
     // Basic validation
