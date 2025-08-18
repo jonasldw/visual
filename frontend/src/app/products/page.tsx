@@ -33,15 +33,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     
     products = response.products
     totalProducts = response.total
-    
-    console.log('🛍️ Products fetched successfully:', {
-      count: products.length,
-      total: totalProducts,
-      page,
-      search
-    })
   } catch (err) {
-    console.error('❌ Error fetching products:', err)
     error = err instanceof Error ? err.message : 'Failed to load products'
   }
 

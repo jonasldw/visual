@@ -36,13 +36,6 @@ export async function createProductAction(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    // Debug: Log all form field names and values
-    console.log('🔍 ProductForm FormData entries:')
-    for (const [key, value] of formData.entries()) {
-      console.log(`  "${key}": "${value}"`)
-    }
-    console.log(`🔍 Total FormData entries: ${Array.from(formData.entries()).length}`)
-    
     const productData = extractProductData(formData)
     
     // Basic validation
