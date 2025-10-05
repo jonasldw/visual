@@ -174,7 +174,7 @@ export default function CustomerForm({ customer, onSuccess, onCancel }: Customer
       )}
 
       {/* Actions */}
-      <div className="flex justify-end space-x-3 pt-4 pb-1 border-t border-gray-200">
+      <div className="flex justify-end space-x-3 pt-4 pb-1">
         <Button
           type="button"
           variant="secondary"

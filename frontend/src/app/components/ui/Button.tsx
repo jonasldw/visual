@@ -44,7 +44,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       sm: "h-8 px-3 py-1 text-xs [&_svg]:w-3 [&_svg]:h-3",
       default: "h-9 px-4 py-2 text-sm [&_svg]:w-4 [&_svg]:h-4",
       lg: "h-10 px-6 py-3 text-base [&_svg]:w-5 [&_svg]:h-5",
-      icon: "h-9 w-9 p-0 [&_svg]:w-4 [&_svg]:h-4"
+      icon: "h-8 w-8 p-0 [&_svg]:w-3.5 [&_svg]:h-3.5"
     }
 
     // Loading spinner component

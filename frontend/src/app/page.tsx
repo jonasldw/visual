@@ -1,4 +1,6 @@
-import { CustomerModalProvider } from './components/providers/CustomerModalProvider'
+import { CustomerUIProvider } from './components/providers/CustomerUIProvider'
+import ResizableLayout from './components/layouts/ResizableLayout'
+import CustomerSlider from './components/CustomerSlider'
 import TopBar from './components/TopBar'
 import CustomersTable from './components/CustomersTable'
 import { api, Customer } from '@/lib/api-client'
@@ -37,19 +39,30 @@ export default async function Home({ searchParams }: PageProps) {
   }
 
   return (
-    <CustomerModalProvider>
-      <div className="flex-1 flex flex-col">
-        <TopBar />
-        <main className="flex-1 p-4">
-          <CustomersTable 
-            customers={customers}
-            totalCustomers={totalCustomers}
-            currentPage={page}
-            search={search}
-            error={error}
-          />
-        </main>
-      </div>
-    </CustomerModalProvider>
+    <CustomerUIProvider>
+      <ResizableLayout 
+        showSidebar={true} // This will be dynamically controlled by provider state
+        className="flex flex-col"
+      >
+        {[
+          // Main content
+          <div key="main" className="flex-1 flex flex-col">
+            <TopBar />
+            <main className="flex-1 p-4">
+              <CustomersTable 
+                customers={customers}
+                totalCustomers={totalCustomers}
+                currentPage={page}
+                search={search}
+                error={error}
+              />
+            </main>
+          </div>,
+
+          // Sidebar content
+          <CustomerSlider key="sidebar" />
+        ]}
+      </ResizableLayout>
+    </CustomerUIProvider>
   )
 }

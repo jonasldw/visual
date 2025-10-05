@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Customer as ApiCustomer } from '@/lib/api-client'
-import { useCustomerModal } from './providers/CustomerModalProvider'
+import { useCustomerUI } from './providers/CustomerUIProvider'
 import Modal from './Modal'
 import CustomerForm from './CustomerForm'
 import { Button } from './ui/Button'
@@ -50,11 +50,9 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
   const {
     showCreateModal,
-    showEditModal,
-    editingCustomer,
-    openEditModal,
-    closeAllModals
-  } = useCustomerModal()
+    openSlider,
+    closeAll
+  } = useCustomerUI()
   
   // Transform API customers to table format
   const customers = apiCustomers.map(transformApiCustomer)
@@ -83,15 +81,15 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
     setSelectedRows(newSelected)
   }
 
-  const handleEditCustomer = (customerId: string) => {
+  const handleViewCustomer = (customerId: string) => {
     const customer = apiCustomers.find(c => c.id.toString() === customerId)
     if (customer) {
-      openEditModal(customer)
+      openSlider(customer)
     }
   }
 
   const handleModalSuccess = () => {
-    closeAllModals()
+    closeAll()
     // Data will be refreshed automatically by revalidatePath in server action
   }
 
@@ -215,13 +213,9 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => handleEditCustomer(customer.id)}
-                      iconName="Pencil"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
                       iconName="Eye"
+                      onClick={() => handleViewCustomer(customer.id)}
+                      className="text-gray-500 hover:text-blue-600"
                     />
                     <Button
                       size="icon"
@@ -295,28 +289,13 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
       {/* Create Customer Modal - controlled by TopBar button via context */}
       <Modal
         isOpen={showCreateModal}
-        onClose={closeAllModals}
+        onClose={closeAll}
         title="Neuen Kunden erstellen"
       >
         <CustomerForm
           onSuccess={handleModalSuccess}
-          onCancel={closeAllModals}
+          onCancel={closeAll}
         />
-      </Modal>
-
-      {/* Edit Customer Modal - controlled by table edit buttons */}
-      <Modal
-        isOpen={showEditModal}
-        onClose={closeAllModals}
-        title="Kunde bearbeiten"
-      >
-        {editingCustomer && (
-          <CustomerForm
-            customer={editingCustomer}
-            onSuccess={handleModalSuccess}
-            onCancel={closeAllModals}
-          />
-        )}
       </Modal>
     </div>
   )

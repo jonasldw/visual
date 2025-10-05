@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useCustomerModal } from './providers/CustomerModalProvider'
+import { useCustomerModal } from './providers/CustomerUIProvider'
 import { useProductModal } from './providers/ProductModalProvider'
 
 // Page configuration for dynamic behavior
