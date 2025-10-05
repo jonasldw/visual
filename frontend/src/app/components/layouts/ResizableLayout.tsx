@@ -14,7 +14,6 @@ interface ResizableLayoutProps {
 export default function ResizableLayout({ 
   children, 
   showSidebar, 
-  onSidebarCollapse,
   className = '' 
 }: ResizableLayoutProps) {
   const [mainContent, sidebarContent] = children
