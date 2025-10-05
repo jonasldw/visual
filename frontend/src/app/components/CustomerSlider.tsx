@@ -1,11 +1,13 @@
 'use client'
 
+import { useRef } from 'react'
 import { useCustomerUI } from './providers/CustomerUIProvider'
 import CustomerForm from './CustomerForm'
 import { Button } from './ui/Button'
 
 export default function CustomerSlider() {
   const { showSlider, selectedCustomer, closeSlider } = useCustomerUI()
+  const formRef = useRef<HTMLFormElement>(null)
 
   if (!showSlider || !selectedCustomer) {
     return null
@@ -16,16 +18,20 @@ export default function CustomerSlider() {
     // Data refresh happens automatically via revalidatePath in server action
   }
 
+  const handleSubmit = () => {
+    formRef.current?.requestSubmit()
+  }
+
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
+      {/* Fixed Header */}
       <div className="flex items-center justify-between p-3.25 px-4 border-b border-primary-dark">
         <div className="flex flex-col">
           <span className="font-medium text-secondary-default text-sm">
             {selectedCustomer.first_name} {selectedCustomer.last_name}
           </span>
         </div>
-        
+
         <Button
           size="icon"
           variant="ghost"
@@ -35,14 +41,36 @@ export default function CustomerSlider() {
         />
       </div>
 
-      {/* Form Content */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full p-4">
-          <CustomerForm
-            customer={selectedCustomer}
-            onSuccess={handleSuccess}
-            onCancel={closeSlider}
-          />
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto p-4">
+        <CustomerForm
+          key={selectedCustomer.id}
+          customer={selectedCustomer}
+          onSuccess={handleSuccess}
+          onCancel={closeSlider}
+          hideActions={true}
+          formRef={formRef}
+        />
+      </div>
+
+      {/* Sticky Footer with Actions */}
+      <div className="p-4">
+        <div className="flex justify-end space-x-3">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={closeSlider}
+          >
+            Abbrechen
+          </Button>
+
+          <Button
+            type="button"
+            variant="primary"
+            onClick={handleSubmit}
+          >
+            Kunde aktualisieren
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, RefObject } from 'react'
 import { createCustomerAction, updateCustomerAction } from '@/app/actions/customers'
 import type { Customer } from '@/lib/api-client'
 import { Input } from './ui/Input'
@@ -11,12 +11,20 @@ interface CustomerFormProps {
   customer?: Customer
   onSuccess?: () => void
   onCancel: () => void
+  hideActions?: boolean
+  formRef?: RefObject<HTMLFormElement | null>
 }
 
-export default function CustomerForm({ customer, onSuccess, onCancel }: CustomerFormProps) {
+export default function CustomerForm({
+  customer,
+  onSuccess,
+  onCancel,
+  hideActions = false,
+  formRef
+}: CustomerFormProps) {
   const isEdit = !!customer
   const action = isEdit ? updateCustomerAction : createCustomerAction
-  
+
   const [state, formAction, isPending] = useActionState(action, null)
 
   // Handle successful submission
@@ -27,7 +35,7 @@ export default function CustomerForm({ customer, onSuccess, onCancel }: Customer
   }, [state?.success, onSuccess])
 
   return (
-    <form action={formAction} className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
+    <form ref={formRef} action={formAction} className="space-y-6">
       {/* Hidden customer ID for edit mode */}
       {isEdit && (
         <input type="hidden" name="customer_id" value={customer.id} />
@@ -173,25 +181,27 @@ export default function CustomerForm({ customer, onSuccess, onCancel }: Customer
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex justify-end space-x-3 pt-4 pb-1">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onCancel}
-        >
-          Abbrechen
-        </Button>
-        
-        <Button
-          type="submit"
-          variant="primary"
-          loading={isPending}
-          disabled={isPending}
-        >
-          {isPending ? 'Speichert...' : isEdit ? 'Kunde aktualisieren' : 'Kunde erstellen'}
-        </Button>
-      </div>
+      {/* Conditionally render actions */}
+      {!hideActions && (
+        <div className="flex justify-end space-x-3 pt-4 pb-1">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+          >
+            Abbrechen
+          </Button>
+
+          <Button
+            type="submit"
+            variant="primary"
+            loading={isPending}
+            disabled={isPending}
+          >
+            {isPending ? 'Speichert...' : isEdit ? 'Kunde aktualisieren' : 'Kunde erstellen'}
+          </Button>
+        </div>
+      )}
     </form>
   )
 }

@@ -10,7 +10,7 @@ const mainNavItems = [
   {
     id: 'customers',
     label: 'Kunden',
-    href: '/',
+    href: '/customers',
     icon: <Icon name="Users" size="sm" />,
   },
   {

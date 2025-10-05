@@ -26,7 +26,7 @@ export default function ResizableLayout({
   return (
     <div className={`flex-1 ${className}`}>
       <PanelGroup direction="horizontal" className="h-full">
-        <Panel defaultSize={70} minSize={30}>
+        <Panel defaultSize={70} minSize={40}>
           {mainContent}
         </Panel>
         

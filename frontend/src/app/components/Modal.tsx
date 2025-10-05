@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect } from 'react'
 import { Button } from './ui/Button'
+import { Backdrop } from './ui/Backdrop'
 
 interface ModalProps {
   isOpen: boolean
@@ -34,14 +35,10 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-        {/* Backdrop */}
-        <div
-          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-          onClick={onClose}
-        />
-        
+        <Backdrop onClick={onClose} blur="xs" opacity={50} />
+
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+        <div className="relative z-10 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
           {/* Header */}
           <div className="bg-white px-4 py-3 border-b border-gray-200">
             <div className="flex items-center justify-between">

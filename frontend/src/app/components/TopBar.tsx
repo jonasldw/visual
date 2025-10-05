@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCustomerModal } from './providers/CustomerUIProvider'
 import { useProductModal } from './providers/ProductModalProvider'
+import { Button } from './ui/Button'
 
 // Page configuration for dynamic behavior
 const pageConfig = {
@@ -78,7 +79,7 @@ export default function TopBar() {
       </div>
 
       {/* Secondary Navigation Bar */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-3.25 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {/* Search - Full Width */}
           <div className="relative flex-1 mr-4">
@@ -101,15 +102,15 @@ export default function TopBar() {
 
           {/* Right Section */}
           <div className="flex items-center space-x-3">
-            <button 
+            <Button
+              variant="primary"
               onClick={openCreateModal}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
             >
               <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               {currentPageConfig.buttonText}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

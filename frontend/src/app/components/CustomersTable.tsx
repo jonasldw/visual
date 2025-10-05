@@ -48,6 +48,7 @@ interface CustomersTableProps {
 
 export default function CustomersTable({ customers: apiCustomers, totalCustomers, currentPage, search, error }: CustomersTableProps) {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
+  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null)
   const {
     showCreateModal,
     openSlider,
@@ -88,6 +89,10 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
     }
   }
 
+  const handleRowClick = (customerId: string) => {
+    handleViewCustomer(customerId)
+  }
+
   const handleModalSuccess = () => {
     closeAll()
     // Data will be refreshed automatically by revalidatePath in server action
@@ -115,11 +120,13 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
 
   return (
     <div className="bg-white overflow-hidden">
+      {/* Horizontal scrolling container */}
       <div className="overflow-x-auto">
-        <table className="min-w-full">
+        <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="w-12 px-4 py-3 text-left">
+              {/* Sticky Checkbox Column */}
+              <th className="sticky left-0 z-20 w-12 px-4 py-3 text-left bg-white border-r border-gray-200">
                 <input
                   type="checkbox"
                   checked={selectedRows.size === customers.length}
@@ -127,7 +134,9 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
               </th>
-              <th className="px-4 py-3 text-left">
+
+              {/* Sticky Name Column */}
+              <th className="sticky left-12 z-20 min-w-[250px] px-4 py-3 text-left bg-white border-r border-gray-200">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Name</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -135,7 +144,9 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   </svg>
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+
+              {/* Scrollable Columns */}
+              <th className="min-w-[250px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Adresse</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -143,7 +154,8 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   </svg>
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+
+              <th className="min-w-[180px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Letzter Verkaufsdatum</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -151,7 +163,8 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   </svg>
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+
+              <th className="min-w-[150px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Geburtstag</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -159,7 +172,8 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   </svg>
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+
+              <th className="min-w-[180px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Telefon</span>
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -167,20 +181,23 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                   </svg>
                 </button>
               </th>
-              <th className="px-4 py-3 text-right">
-                <div className="flex items-center justify-end space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <span>Aktionen</span>
-                  <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M5 8l5 5 5-5H5z"/>
-                  </svg>
-                </div>
-              </th>
             </tr>
           </thead>
+
           <tbody className="bg-white">
             {customers.map((customer) => (
-              <tr key={customer.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="px-4 py-3">
+              <tr
+                key={customer.id}
+                onClick={() => handleRowClick(customer.id)}
+                onMouseEnter={() => setHoveredRowId(customer.id)}
+                onMouseLeave={() => setHoveredRowId(null)}
+                className="relative border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors group"
+              >
+                {/* Sticky Checkbox Column */}
+                <td
+                  onClick={(e) => e.stopPropagation()}
+                  className="sticky left-0 z-10 px-4 py-3 bg-white group-hover:bg-gray-50 border-r border-gray-200 transition-colors"
+                >
                   <input
                     type="checkbox"
                     checked={selectedRows.has(customer.id)}
@@ -188,42 +205,58 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                 </td>
-                <td className="px-4 py-3">
+
+                {/* Sticky Name Column */}
+                <td className="sticky left-12 z-10 min-w-[250px] px-4 py-3 bg-white group-hover:bg-gray-50 border-r border-gray-200 transition-colors">
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-medium">{customer.name.charAt(0)}</span>
+                      <span className="text-white text-sm font-medium">
+                        {customer.name.charAt(0)}
+                      </span>
                     </div>
-                    <div className="text-sm font-medium text-gray-900">{customer.name}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {customer.name}
+                    </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
+
+                {/* Scrollable Columns */}
+                <td className="min-w-[250px] px-4 py-3 text-sm text-gray-700">
                   {customer.address}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.lastSaleDate ? new Date(customer.lastSaleDate).toLocaleDateString('de-DE') : '—'}
+
+                <td className="min-w-[180px] px-4 py-3 text-sm text-gray-700">
+                  {customer.lastSaleDate
+                    ? new Date(customer.lastSaleDate).toLocaleDateString('de-DE')
+                    : '—'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {customer.dateOfBirth ? new Date(customer.dateOfBirth).toLocaleDateString('de-DE') : '—'}
+
+                <td className="min-w-[150px] px-4 py-3 text-sm text-gray-700">
+                  {customer.dateOfBirth
+                    ? new Date(customer.dateOfBirth).toLocaleDateString('de-DE')
+                    : '—'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
+
+                <td className="min-w-[180px] px-4 py-3 text-sm text-gray-700">
                   {customer.phone}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      iconName="Eye"
-                      onClick={() => handleViewCustomer(customer.id)}
-                      className="text-gray-500 hover:text-blue-600"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      iconName="EllipsisVertical"
-                    />
-                  </div>
-                </td>
+
+                {/* Floating Action Buttons */}
+                {hoveredRowId === customer.id && (
+                  <td className="absolute right-4 top-1/2 -translate-y-1/2 z-30">
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1 bg-white rounded-lg shadow-md border border-primary-medium"
+                    >
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        iconName="EllipsisVertical"
+                        className="text-gray-500 hover:text-gray-700"
+                      />
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -241,7 +274,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
         <div className="flex items-center space-x-2">
           {currentPage > 1 ? (
             <Link
-              href={`/?${new URLSearchParams({ search, page: (currentPage - 1).toString() }).toString()}`}
+              href={`/customers?${new URLSearchParams({ search, page: (currentPage - 1).toString() }).toString()}`}
               className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
             >
               Zurück
@@ -263,7 +296,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
               ) : (
                 <Link
                   key={pageNum}
-                  href={`/?${new URLSearchParams({ search, page: pageNum.toString() }).toString()}`}
+                  href={`/customers?${new URLSearchParams({ search, page: pageNum.toString() }).toString()}`}
                   className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
                 >
                   {pageNum}
@@ -273,7 +306,7 @@ export default function CustomersTable({ customers: apiCustomers, totalCustomers
           
           {currentPage * 20 < totalCustomers ? (
             <Link
-              href={`/?${new URLSearchParams({ search, page: (currentPage + 1).toString() }).toString()}`}
+              href={`/customers?${new URLSearchParams({ search, page: (currentPage + 1).toString() }).toString()}`}
               className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
             >
               Weiter
