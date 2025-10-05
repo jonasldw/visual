@@ -4,6 +4,7 @@ interface BackdropProps {
   onClick?: () => void
   blur?: 'none' | 'xs' | 'sm' | 'md' | 'lg'
   opacity?: number
+  color?: string // CSS variable name without 'var()' wrapper, e.g. '--secondary-default'
   className?: string
 }
 
@@ -11,6 +12,7 @@ export function Backdrop({
   onClick,
   blur = 'xs',
   opacity = 50,
+  color = '--secondary-default',
   className = ''
 }: BackdropProps) {
   const blurClasses = {
@@ -23,7 +25,10 @@ export function Backdrop({
 
   return (
     <div
-      className={`fixed inset-0 z-0 transition-opacity bg-secondary-default/${opacity} ${blurClasses[blur]} ${className}`}
+      className={`fixed inset-0 z-0 transition-opacity ${blurClasses[blur]} ${className}`}
+      style={{
+        backgroundColor: `color-mix(in srgb, var(${color}) ${opacity}%, transparent)`
+      }}
       onClick={onClick}
     />
   )
