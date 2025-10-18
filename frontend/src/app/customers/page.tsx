@@ -4,8 +4,13 @@ import CustomerSlider from '../components/CustomerSlider'
 import TopBar from '../components/TopBar'
 import CustomersTable from '../components/CustomersTable'
 import { api, Customer } from '@/lib/api-client'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Visual - Kunden',
+}
 
 interface PageProps {
   searchParams: Promise<{

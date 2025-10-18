@@ -4,8 +4,13 @@ import TopBar from '../components/TopBar'
 import InvoicesTable from '../components/InvoicesTable'
 import InvoiceSlider from '../components/InvoiceSlider'
 import { api, type Invoice, type Customer, type InvoiceStatus } from '@/lib/api-client'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Visual - Rechnungen',
+}
 
 interface PageProps {
   searchParams: Promise<{

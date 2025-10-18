@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OptiCRM - Optiker Kundenverwaltung",
-  description: "Ein modernes CRM-System für Optiker zur Verwaltung von Kundendaten, Terminen und Rezepten",
+  title: "Visual",
+  description: "Ein modernes Management-System für Optiker zur Verwaltung von Kundendaten, Produkten und Rechnungen",
 };
 
 export default function RootLayout({
