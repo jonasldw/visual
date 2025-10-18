@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { Invoice, InvoiceStatus } from '@/lib/api-client'
-import { invoiceApi } from '@/lib/api-client'
+import { getCustomerInvoicesAction } from '@/app/actions/invoices'
 
 interface CustomerInvoicesSectionProps {
   customerId: number
@@ -42,29 +42,18 @@ export default function CustomerInvoicesSection({
       setIsLoading(true)
       setError(null)
 
-      try {
-        const response = await invoiceApi.getAll({
-          customer_id: customerId,
-          page: 1,
-          per_page: 50,
-          organization_id: organizationId ?? 1
-        })
+      const result = await getCustomerInvoicesAction(
+        customerId,
+        organizationId ?? 1
+      )
 
-        if (!isCancelled) {
-          setInvoices(response.invoices)
+      if (!isCancelled) {
+        if (result.success) {
+          setInvoices(result.invoices)
+        } else {
+          setError(result.error || 'Unbekannter Fehler beim Laden der Rechnungen')
         }
-      } catch (err) {
-        if (!isCancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : 'Unbekannter Fehler beim Laden der Rechnungen'
-          )
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoading(false)
-        }
+        setIsLoading(false)
       }
     }
 

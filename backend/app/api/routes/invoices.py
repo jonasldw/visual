@@ -34,11 +34,12 @@ async def list_invoices(
     sort_by: Optional[str] = Query("created_at", description="Sort field"),
     sort_order: Optional[str] = Query("desc", regex="^(asc|desc)$", description="Sort order"),
     organization_id: int = Query(1, description="Organization ID"),
+    include_items: bool = Query(False, description="Include invoice items in response"),
     db: Client = Depends(get_database)
 ) -> InvoiceListResponse:
     """
     List invoices with pagination, filtering, and sorting.
-    
+
     - **page**: Page number (starts at 1)
     - **per_page**: Number of items per page (max 100)
     - **search**: Search in invoice number or customer data
@@ -48,19 +49,35 @@ async def list_invoices(
     - **sort_by**: Field to sort by (created_at, invoice_date, total)
     - **sort_order**: Sort order (asc or desc)
     - **organization_id**: Organization ID for multi-tenancy
+    - **include_items**: Include invoice items in response (default: False)
     """
     try:
         # Calculate offset
         offset = (page - 1) * per_page
-        
-        # Build query with customer join for search
-        query = db.table('invoices').select(
-            'id, organization_id, customer_id, invoice_number, invoice_date, due_date, '
-            'prescription_snapshot, insurance_provider, insurance_claim_number, '
-            'insurance_coverage_amount, patient_copay_amount, subtotal, vat_amount, '
-            'total, status, payment_method, notes, created_at, updated_at, '
-            'customers(first_name, last_name, email)'
-        ).eq('organization_id', organization_id)
+
+        # Build query with customer join and optional items join
+        if include_items:
+            # Fetch invoices with items
+            select_clause = (
+                'id, organization_id, customer_id, invoice_number, invoice_date, due_date, '
+                'prescription_snapshot, insurance_provider, insurance_claim_number, '
+                'insurance_coverage_amount, patient_copay_amount, subtotal, vat_amount, '
+                'total, status, payment_method, notes, created_at, updated_at, '
+                'customers(first_name, last_name, email), '
+                'invoice_items(id, invoice_id, product_id, product_snapshot, prescription_values, '
+                'quantity, unit_price, discount_amount, vat_rate, line_total, insurance_covered, created_at)'
+            )
+        else:
+            # Fetch basic invoices without items
+            select_clause = (
+                'id, organization_id, customer_id, invoice_number, invoice_date, due_date, '
+                'prescription_snapshot, insurance_provider, insurance_claim_number, '
+                'insurance_coverage_amount, patient_copay_amount, subtotal, vat_amount, '
+                'total, status, payment_method, notes, created_at, updated_at, '
+                'customers(first_name, last_name, email)'
+            )
+
+        query = db.table('invoices').select(select_clause).eq('organization_id', organization_id)
         
         # Apply filters
         if search:
@@ -109,15 +126,29 @@ async def list_invoices(
         
         # Execute query
         result = query.execute()
-        
-        # Convert to Pydantic models (flatten customer data)
+
+        # Convert to Pydantic models (flatten customer and items data)
         invoices = []
         for row in result.data:
             customer_data = row.get('customers')
-            invoice_data = {k: v for k, v in row.items() if k != 'customers'}
+            items_data = row.get('invoice_items', []) if include_items else None
+
+            # Extract invoice data (exclude nested objects)
+            invoice_data = {k: v for k, v in row.items() if k not in ['customers', 'invoice_items']}
+
+            # Add customer if present
             if customer_data:
                 invoice_data['customer'] = customer_data
-            invoices.append(Invoice(**invoice_data))
+
+            # Create appropriate model based on include_items flag
+            if include_items:
+                # Create InvoiceWithItems
+                items = [InvoiceItem(**item) for item in items_data]
+                invoice_obj = Invoice(**invoice_data)
+                invoices.append(InvoiceWithItems(**invoice_obj.model_dump(), items=items))
+            else:
+                # Create basic Invoice
+                invoices.append(Invoice(**invoice_data))
         
         # Calculate pagination metadata
         total_pages = (total + per_page - 1) // per_page

@@ -1,16 +1,16 @@
 'use client'
 
-import { createContext, useContext, useMemo, useState, ReactNode } from 'react'
-import type { Invoice, Customer } from '@/lib/api-client'
+import { createContext, useContext, useMemo, useState, ReactNode, useCallback } from 'react'
+import type { InvoiceWithItems, Customer } from '@/lib/api-client'
 
 interface InvoiceUIContextType {
   showCreateModal: boolean
   showDetails: boolean
-  selectedInvoice: Invoice | null
+  selectedInvoice: InvoiceWithItems | null
   customers: Customer[]
   openCreateModal: () => void
   closeCreateModal: () => void
-  openDetails: (invoice: Invoice) => void
+  openDetails: (invoice: InvoiceWithItems) => void
   closeDetails: () => void
   closeAll: () => void
 }
@@ -25,34 +25,34 @@ interface ProviderProps {
 export function InvoiceUIProvider({ children, customers }: ProviderProps) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithItems | null>(null)
 
-  const openCreateModal = () => {
+  const openCreateModal = useCallback(() => {
     setShowCreateModal(true)
     setShowDetails(false)
     setSelectedInvoice(null)
-  }
+  }, [])
 
-  const closeCreateModal = () => {
+  const closeCreateModal = useCallback(() => {
     setShowCreateModal(false)
-  }
+  }, [])
 
-  const openDetails = (invoice: Invoice) => {
+  const openDetails = useCallback((invoice: InvoiceWithItems) => {
     setSelectedInvoice(invoice)
     setShowDetails(true)
     setShowCreateModal(false)
-  }
+  }, [])
 
-  const closeDetails = () => {
+  const closeDetails = useCallback(() => {
     setShowDetails(false)
     setSelectedInvoice(null)
-  }
+  }, [])
 
-  const closeAll = () => {
+  const closeAll = useCallback(() => {
     setShowCreateModal(false)
     setShowDetails(false)
     setSelectedInvoice(null)
-  }
+  }, [])
 
   const value = useMemo(
     () => ({
@@ -66,7 +66,7 @@ export function InvoiceUIProvider({ children, customers }: ProviderProps) {
       closeDetails,
       closeAll
     }),
-    [showCreateModal, showDetails, selectedInvoice, customers]
+    [showCreateModal, showDetails, selectedInvoice, customers, openCreateModal, closeCreateModal, openDetails, closeDetails, closeAll]
   )
 
   return (

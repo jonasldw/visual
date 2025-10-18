@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { invoiceApi, type InvoiceWithItems } from '@/lib/api-client'
+import { useMemo } from 'react'
 import { useInvoiceUI } from './providers/InvoiceUIProvider'
 import { Button } from './ui/Button'
 
@@ -43,8 +42,8 @@ function formatDate(value?: string | null): string {
   return date.toLocaleDateString('de-DE')
 }
 
-function getProductName(item: InvoiceWithItems['items'][number]): string {
-  const snapshot = item.product_snapshot as Record<string, unknown> | null
+function getProductName(item: { product_snapshot: Record<string, unknown>; product_id?: number | null }): string {
+  const snapshot = item.product_snapshot
   if (snapshot && typeof snapshot.name === 'string') {
     return snapshot.name
   }
@@ -53,46 +52,9 @@ function getProductName(item: InvoiceWithItems['items'][number]): string {
 
 export default function InvoiceSlider() {
   const { showDetails, selectedInvoice, closeDetails } = useInvoiceUI()
-  const [invoiceDetails, setInvoiceDetails] = useState<InvoiceWithItems | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-
-    const fetchInvoice = async () => {
-      if (!showDetails || !selectedInvoice) {
-        setInvoiceDetails(null)
-        return
-      }
-
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await invoiceApi.getById(selectedInvoice.id, selectedInvoice.organization_id ?? 1)
-        if (isMounted) {
-          setInvoiceDetails(data)
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Fehler beim Laden der Rechnung')
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    fetchInvoice()
-
-    return () => {
-      isMounted = false
-    }
-  }, [showDetails, selectedInvoice, selectedInvoice?.id, selectedInvoice?.organization_id])
 
   const statusBadge = useMemo(() => {
-    const status = invoiceDetails?.status ?? selectedInvoice?.status
+    const status = selectedInvoice?.status
     if (!status) {
       return null
     }
@@ -101,7 +63,7 @@ export default function InvoiceSlider() {
         {STATUS_LABELS[status] || status}
       </span>
     )
-  }, [invoiceDetails?.status, selectedInvoice?.status])
+  }, [selectedInvoice?.status])
 
   if (!showDetails || !selectedInvoice) {
     return null
@@ -132,111 +94,95 @@ export default function InvoiceSlider() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {loading && (
-          <div className="flex items-center justify-center h-32 text-sm text-gray-500">
-            Rechnung wird geladen…
+        <section className="space-y-2">
+          <h3 className="text-sm font-semibold text-secondary-default">Kunde</h3>
+          <div className="rounded-lg border border-gray-200 p-3 space-y-1 text-sm text-gray-700">
+            <div>{`${selectedInvoice.customer?.first_name ?? ''} ${selectedInvoice.customer?.last_name ?? ''}`.trim() || 'Unbekannter Kunde'}</div>
+            {selectedInvoice.customer?.email && (
+              <div className="text-xs text-gray-500">{selectedInvoice.customer.email}</div>
+            )}
           </div>
-        )}
+        </section>
 
-        {error && (
-          <div className="rounded-md bg-red-50 p-4 text-sm text-red-600">
-            {error}
+        <section className="space-y-2">
+          <h3 className="text-sm font-semibold text-secondary-default">Rechnungsdetails</h3>
+          <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
+            <div>
+              <div className="text-xs text-gray-500">Rechnungsdatum</div>
+              <div>{formatDate(selectedInvoice.invoice_date)}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Fälligkeitsdatum</div>
+              <div>{formatDate(selectedInvoice.due_date)}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Zahlungsart</div>
+              <div>{selectedInvoice.payment_method || '—'}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Notizen</div>
+              <div>{selectedInvoice.notes || '—'}</div>
+            </div>
           </div>
-        )}
+        </section>
 
-        {!loading && !error && invoiceDetails && (
-          <>
-            <section className="space-y-2">
-              <h3 className="text-sm font-semibold text-secondary-default">Kunde</h3>
-              <div className="rounded-lg border border-gray-200 p-3 space-y-1 text-sm text-gray-700">
-                <div>{`${invoiceDetails.customer?.first_name ?? ''} ${invoiceDetails.customer?.last_name ?? ''}`.trim() || 'Unbekannter Kunde'}</div>
-                {invoiceDetails.customer?.email && (
-                  <div className="text-xs text-gray-500">{invoiceDetails.customer.email}</div>
+        <section className="space-y-2">
+          <h3 className="text-sm font-semibold text-secondary-default">Positionen</h3>
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produkt</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menge</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Einzelpreis</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MwSt.</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Summe</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {selectedInvoice.items.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-4 text-center text-sm text-gray-500">
+                      Keine Positionen erfasst.
+                    </td>
+                  </tr>
                 )}
-              </div>
-            </section>
+                {selectedInvoice.items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      <div className="font-medium text-gray-900">{getProductName(item)}</div>
+                      {item.product_snapshot && typeof item.product_snapshot === 'object' && 'sku' in item.product_snapshot && (
+                        <div className="text-xs text-gray-500">SKU: {(item.product_snapshot as Record<string, unknown>).sku as string}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
+                    <td className="px-4 py-2 text-sm text-gray-700">{formatCurrency(item.unit_price)}</td>
+                    <td className="px-4 py-2 text-sm text-gray-700">{((typeof item.vat_rate === 'string' ? Number.parseFloat(item.vat_rate) : Number(item.vat_rate)) * 100).toFixed(0)}%</td>
+                    <td className="px-4 py-2 text-sm text-gray-700">{formatCurrency(item.line_total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-            <section className="space-y-2">
-              <h3 className="text-sm font-semibold text-secondary-default">Rechnungsdetails</h3>
-              <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
-                <div>
-                  <div className="text-xs text-gray-500">Rechnungsdatum</div>
-                  <div>{formatDate(invoiceDetails.invoice_date)}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Fälligkeitsdatum</div>
-                  <div>{formatDate(invoiceDetails.due_date)}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Zahlungsart</div>
-                  <div>{invoiceDetails.payment_method || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500">Notizen</div>
-                  <div>{invoiceDetails.notes || '—'}</div>
-                </div>
-              </div>
-            </section>
-
-            <section className="space-y-2">
-              <h3 className="text-sm font-semibold text-secondary-default">Positionen</h3>
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produkt</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menge</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Einzelpreis</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MwSt.</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Summe</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {invoiceDetails.items.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="px-4 py-4 text-center text-sm text-gray-500">
-                          Keine Positionen erfasst.
-                        </td>
-                      </tr>
-                    )}
-                    {invoiceDetails.items.map((item) => (
-                      <tr key={item.id}>
-                        <td className="px-4 py-2 text-sm text-gray-700">
-                          <div className="font-medium text-gray-900">{getProductName(item)}</div>
-                          {item.product_snapshot && typeof item.product_snapshot === 'object' && 'sku' in item.product_snapshot && (
-                            <div className="text-xs text-gray-500">SKU: {(item.product_snapshot as Record<string, unknown>).sku as string}</div>
-                          )}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-700">{item.quantity}</td>
-                        <td className="px-4 py-2 text-sm text-gray-700">{formatCurrency(item.unit_price)}</td>
-                        <td className="px-4 py-2 text-sm text-gray-700">{((typeof item.vat_rate === 'string' ? Number.parseFloat(item.vat_rate) : Number(item.vat_rate)) * 100).toFixed(0)}%</td>
-                        <td className="px-4 py-2 text-sm text-gray-700">{formatCurrency(item.line_total)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
-            <section className="space-y-2">
-              <h3 className="text-sm font-semibold text-secondary-default">Summen</h3>
-              <div className="rounded-lg border border-gray-200 p-3 space-y-2 text-sm text-gray-700">
-                <div className="flex items-center justify-between">
-                  <span>Zwischensumme</span>
-                  <span>{formatCurrency(invoiceDetails.subtotal)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Mehrwertsteuer</span>
-                  <span>{formatCurrency(invoiceDetails.vat_amount)}</span>
-                </div>
-                <div className="flex items-center justify-between text-base font-semibold text-gray-900">
-                  <span>Gesamt</span>
-                  <span>{formatCurrency(invoiceDetails.total)}</span>
-                </div>
-              </div>
-            </section>
-          </>
-        )}
+        <section className="space-y-2">
+          <h3 className="text-sm font-semibold text-secondary-default">Summen</h3>
+          <div className="rounded-lg border border-gray-200 p-3 space-y-2 text-sm text-gray-700">
+            <div className="flex items-center justify-between">
+              <span>Zwischensumme</span>
+              <span>{formatCurrency(selectedInvoice.subtotal)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Mehrwertsteuer</span>
+              <span>{formatCurrency(selectedInvoice.vat_amount)}</span>
+            </div>
+            <div className="flex items-center justify-between text-base font-semibold text-gray-900">
+              <span>Gesamt</span>
+              <span>{formatCurrency(selectedInvoice.total)}</span>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div className="p-4 border-t border-gray-200">
