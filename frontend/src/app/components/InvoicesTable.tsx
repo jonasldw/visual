@@ -2,14 +2,14 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { Invoice as ApiInvoice, InvoiceStatus } from '@/lib/api-client'
+import type { InvoiceWithItems, InvoiceStatus } from '@/lib/api-client'
 import { useInvoiceUI } from './providers/InvoiceUIProvider'
 import Modal from './Modal'
 import InvoiceForm from './InvoiceForm'
 import { Button } from './ui/Button'
 
 interface InvoicesTableProps {
-  invoices: ApiInvoice[]
+  invoices: InvoiceWithItems[]
   totalInvoices: number
   currentPage: number
   search: string
@@ -54,7 +54,7 @@ function formatCurrency(value: number | string): string {
   }).format(Number.isNaN(numeric) ? 0 : numeric)
 }
 
-function transformInvoice(apiInvoice: ApiInvoice): TableInvoice {
+function transformInvoice(apiInvoice: InvoiceWithItems): TableInvoice {
   const customerName = apiInvoice.customer
     ? `${apiInvoice.customer.first_name ?? ''} ${apiInvoice.customer.last_name ?? ''}`.trim()
     : ''

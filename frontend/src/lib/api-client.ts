@@ -362,9 +362,10 @@ export const invoiceApi = {
     date_from?: string;
     date_to?: string;
     organization_id?: number;
+    include_items?: boolean;
   }): Promise<InvoiceListResponse> => {
     const searchParams = new URLSearchParams();
-    
+
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.per_page) searchParams.append('per_page', params.per_page.toString());
     if (params?.search) searchParams.append('search', params.search);
@@ -373,10 +374,11 @@ export const invoiceApi = {
     if (params?.date_from) searchParams.append('date_from', params.date_from);
     if (params?.date_to) searchParams.append('date_to', params.date_to);
     if (params?.organization_id) searchParams.append('organization_id', params.organization_id.toString());
-    
+    if (params?.include_items !== undefined) searchParams.append('include_items', params.include_items.toString());
+
     const queryString = searchParams.toString();
     const endpoint = `/api/v1/invoices${queryString ? `?${queryString}` : ''}`;
-    
+
     return request<InvoiceListResponse>(endpoint);
   },
 

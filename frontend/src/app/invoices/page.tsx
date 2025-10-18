@@ -3,7 +3,7 @@ import PageContent from './PageContent'
 import TopBar from '../components/TopBar'
 import InvoicesTable from '../components/InvoicesTable'
 import InvoiceSlider from '../components/InvoiceSlider'
-import { api, type Invoice, type Customer, type InvoiceStatus } from '@/lib/api-client'
+import { api, type InvoiceWithItems, type Customer, type InvoiceStatus } from '@/lib/api-client'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -28,7 +28,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
   const allowedStatuses: InvoiceStatus[] = ['draft', 'sent', 'paid', 'partially_paid', 'insurance_pending', 'cancelled']
   const status = rawStatus && allowedStatuses.includes(rawStatus) ? rawStatus : undefined
 
-  let invoices: Invoice[] = []
+  let invoices: InvoiceWithItems[] = []
   let totalInvoices = 0
   let error: string | null = null
   let customers: Customer[] = []
@@ -39,10 +39,11 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
       page,
       per_page: 20,
       status,
-      organization_id: 1
+      organization_id: 1,
+      include_items: true
     })
 
-    invoices = response.invoices
+    invoices = response.invoices as InvoiceWithItems[]
     totalInvoices = response.total
   } catch (err) {
     error = err instanceof Error ? err.message : 'Fehler beim Laden der Rechnungen'

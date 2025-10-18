@@ -120,7 +120,7 @@ class InvoiceResponse(InvoiceWithItems):
 
 
 class InvoiceListResponse(BaseModel):
-    invoices: List[Invoice]
+    invoices: List[Invoice | InvoiceWithItems]
     total: int
     page: int
     per_page: int

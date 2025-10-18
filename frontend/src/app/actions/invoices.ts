@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { api } from '@/lib/api-client'
-import type { InvoiceCreate, InvoiceStatus, InvoiceItemCreate } from '@/lib/api-client'
+import type { InvoiceCreate, InvoiceStatus, InvoiceItemCreate, Invoice } from '@/lib/api-client'
 
 export interface ActionState {
   success: boolean
@@ -119,6 +119,32 @@ export async function createInvoiceAction(
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Interner Fehler beim Erstellen der Rechnung'
+    }
+  }
+}
+
+export async function getCustomerInvoicesAction(
+  customerId: number,
+  organizationId: number = 1
+) {
+  try {
+    const response = await api.invoices.getAll({
+      customer_id: customerId,
+      page: 1,
+      per_page: 50,
+      organization_id: organizationId,
+      include_items: false
+    })
+
+    return {
+      success: true,
+      invoices: response.invoices as Invoice[]
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Fehler beim Laden der Rechnungen',
+      invoices: []
     }
   }
 }
