@@ -142,7 +142,9 @@ async def list_invoices(
 
             # Create appropriate model based on include_items flag
             if include_items:
-                # Create InvoiceWithItems
+                # Create InvoiceWithItems - ensure items_data is always a list
+                if not items_data or not isinstance(items_data, list):
+                    items_data = []
                 items = [InvoiceItem(**item) for item in items_data]
                 invoice_obj = Invoice(**invoice_data)
                 invoices.append(InvoiceWithItems(**invoice_obj.model_dump(), items=items))

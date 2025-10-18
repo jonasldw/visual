@@ -140,14 +140,14 @@ export default function InvoiceSlider() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {selectedInvoice.items.length === 0 && (
+                {(!selectedInvoice.items || selectedInvoice.items.length === 0) && (
                   <tr>
                     <td colSpan={5} className="px-4 py-4 text-center text-sm text-gray-500">
                       Keine Positionen erfasst.
                     </td>
                   </tr>
                 )}
-                {selectedInvoice.items.map((item) => (
+                {selectedInvoice.items && selectedInvoice.items.map((item) => (
                   <tr key={item.id}>
                     <td className="px-4 py-2 text-sm text-gray-700">
                       <div className="font-medium text-gray-900">{getProductName(item)}</div>
