@@ -45,8 +45,14 @@ app = FastAPI(
 )
 
 # Configure CORS
-# During beta, allow all origins. Revisit once auth is enabled.
-allowed_origins = ["*"] if settings.ENVIRONMENT == "production" else [settings.FRONTEND_URL]
+# During development, allow all origins for easier local development
+# In production, restrict to specific frontend URL once deployed
+if settings.ENVIRONMENT == "production":
+    allowed_origins = [settings.FRONTEND_URL]
+else:
+    # Development: allow localhost on any port
+    allowed_origins = ["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
