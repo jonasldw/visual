@@ -285,4 +285,3 @@ For detailed implementation guidelines, see:
 - `docs/api-client-guidelines.md` - TypeScript API client patterns and best practices
 - `docs/deployment.md` - Environment variables, CI/CD, and deployment configuration
 - `docs/database-schema.md` - Complete database schema documentation with relationships
-- `implementation_roadmap.md` - Step-by-step implementation guide for the database schema

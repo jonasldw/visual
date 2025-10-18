@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { useCustomerUI } from './providers/CustomerUIProvider'
 import CustomerForm from './CustomerForm'
 import { Button } from './ui/Button'
+import CustomerInvoicesSection from './CustomerInvoicesSection'
 
 export default function CustomerSlider() {
   const { showSlider, selectedCustomer, closeSlider } = useCustomerUI()
@@ -43,14 +44,22 @@ export default function CustomerSlider() {
 
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto p-4">
-        <CustomerForm
-          key={selectedCustomer.id}
-          customer={selectedCustomer}
-          onSuccess={handleSuccess}
-          onCancel={closeSlider}
-          hideActions={true}
-          formRef={formRef}
-        />
+        <div className="space-y-6">
+          <CustomerForm
+            key={selectedCustomer.id}
+            customer={selectedCustomer}
+            onSuccess={handleSuccess}
+            onCancel={closeSlider}
+            hideActions={true}
+            formRef={formRef}
+          />
+
+          <CustomerInvoicesSection
+            key={`invoices-${selectedCustomer.id}`}
+            customerId={selectedCustomer.id}
+            organizationId={selectedCustomer.organization_id}
+          />
+        </div>
       </div>
 
       {/* Sticky Footer with Actions */}

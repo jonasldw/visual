@@ -46,9 +46,15 @@ class InvoiceItem(InvoiceItemBase):
     id: int
     invoice_id: int
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
+
+
+class InvoiceCustomer(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
 
 
 class InvoiceBase(BaseModel):
@@ -67,6 +73,9 @@ class InvoiceBase(BaseModel):
 
 
 class InvoiceCreate(InvoiceBase):
+    subtotal: Decimal = Field(..., ge=0, description="Zwischensumme")
+    vat_amount: Decimal = Field(..., ge=0, description="Mehrwertsteuerbetrag")
+    total: Decimal = Field(..., ge=0, description="Gesamtsumme")
     items: Optional[List[InvoiceItemCreate]] = Field(default=[], description="Rechnungspositionen")
 
 
@@ -83,6 +92,9 @@ class InvoiceUpdate(BaseModel):
     status: Optional[InvoiceStatus] = None
     payment_method: Optional[str] = Field(None, max_length=50)
     notes: Optional[str] = Field(None, max_length=1000)
+    subtotal: Optional[Decimal] = Field(None, ge=0)
+    vat_amount: Optional[Decimal] = Field(None, ge=0)
+    total: Optional[Decimal] = Field(None, ge=0)
 
 
 class Invoice(InvoiceBase):
@@ -93,7 +105,8 @@ class Invoice(InvoiceBase):
     total: Decimal
     created_at: datetime
     updated_at: datetime
-    
+    customer: Optional[InvoiceCustomer] = None
+
     class Config:
         from_attributes = True
 

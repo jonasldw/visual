@@ -113,6 +113,12 @@ export interface InvoiceBase {
   notes?: string;
 }
 
+export interface InvoiceCustomerSummary {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+}
+
 export interface Invoice extends InvoiceBase {
   id: number;
   invoice_number: string;
@@ -121,6 +127,7 @@ export interface Invoice extends InvoiceBase {
   total: number;
   created_at: string;
   updated_at: string;
+  customer?: InvoiceCustomerSummary;
 }
 
 export interface InvoiceWithItems extends Invoice {
@@ -128,10 +135,17 @@ export interface InvoiceWithItems extends Invoice {
 }
 
 export interface InvoiceCreate extends InvoiceBase {
+  subtotal: number;
+  vat_amount: number;
+  total: number;
   items?: InvoiceItemCreate[];
 }
 
-export type InvoiceUpdate = Partial<InvoiceBase>;
+export interface InvoiceUpdate extends Partial<InvoiceBase> {
+  subtotal?: number;
+  vat_amount?: number;
+  total?: number;
+}
 
 export interface InvoiceListResponse {
   invoices: Invoice[];

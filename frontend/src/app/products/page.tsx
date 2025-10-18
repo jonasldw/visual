@@ -2,8 +2,13 @@ import { ProductModalProvider } from '../components/providers/ProductModalProvid
 import TopBar from '../components/TopBar'
 import ProductsTable from '../components/ProductsTable'
 import { api, Product } from '@/lib/api-client'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Visual - Produkte',
+}
 
 interface PageProps {
   searchParams: Promise<{
