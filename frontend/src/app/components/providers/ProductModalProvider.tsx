@@ -1,68 +1,93 @@
 'use client'
 
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, ReactNode } from 'react'
 import type { Product } from '@/lib/api-client'
 
-interface ProductModalContextType {
-  // Create modal state
+interface ProductUIContextType {
   showCreateModal: boolean
-  setShowCreateModal: (show: boolean) => void
-  
-  // Edit modal state  
-  showEditModal: boolean
-  setShowEditModal: (show: boolean) => void
-  editingProduct: Product | null
-  setEditingProduct: (product: Product | null) => void
-  
-  // Utility functions
+  showSlider: boolean
+  selectedProduct: Product | null
   openCreateModal: () => void
-  openEditModal: (product: Product) => void
-  closeAllModals: () => void
+  closeCreateModal: () => void
+  openSlider: (product: Product) => void
+  closeSlider: () => void
+  closeAll: () => void
 }
 
-const ProductModalContext = createContext<ProductModalContextType | null>(null)
+const ProductUIContext = createContext<ProductUIContextType | undefined>(undefined)
 
-export function ProductModalProvider({ children }: { children: React.ReactNode }) {
+export function ProductUIProvider({ children }: { children: ReactNode }) {
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [showSlider, setShowSlider] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   const openCreateModal = () => {
     setShowCreateModal(true)
+    setShowSlider(false)
   }
 
-  const openEditModal = (product: Product) => {
-    setEditingProduct(product)
-    setShowEditModal(true)
-  }
-
-  const closeAllModals = () => {
+  const closeCreateModal = () => {
     setShowCreateModal(false)
-    setShowEditModal(false)
-    setEditingProduct(null)
+  }
+
+  const openSlider = (product: Product) => {
+    setSelectedProduct(product)
+    setShowSlider(true)
+    setShowCreateModal(false)
+  }
+
+  const closeSlider = () => {
+    setShowSlider(false)
+    setSelectedProduct(null)
+  }
+
+  const closeAll = () => {
+    setShowCreateModal(false)
+    setShowSlider(false)
+    setSelectedProduct(null)
   }
 
   return (
-    <ProductModalContext.Provider value={{
-      showCreateModal,
-      setShowCreateModal,
-      showEditModal,
-      setShowEditModal,
-      editingProduct,
-      setEditingProduct,
-      openCreateModal,
-      openEditModal,
-      closeAllModals
-    }}>
+    <ProductUIContext.Provider
+      value={{
+        showCreateModal,
+        showSlider,
+        selectedProduct,
+        openCreateModal,
+        closeCreateModal,
+        openSlider,
+        closeSlider,
+        closeAll
+      }}
+    >
       {children}
-    </ProductModalContext.Provider>
+    </ProductUIContext.Provider>
   )
 }
 
-export function useProductModal() {
-  const context = useContext(ProductModalContext)
-  if (!context) {
-    throw new Error('useProductModal must be used within ProductModalProvider')
+export function ProductModalProvider({ children }: { children: ReactNode }) {
+  return <ProductUIProvider>{children}</ProductUIProvider>
+}
+
+export function useProductUI() {
+  const context = useContext(ProductUIContext)
+  if (context === undefined) {
+    throw new Error('useProductUI must be used within ProductUIProvider')
   }
   return context
+}
+
+export function useProductModal() {
+  const context = useProductUI()
+  return {
+    showCreateModal: context.showCreateModal,
+    showEditModal: false,
+    editingProduct: context.selectedProduct,
+    openCreateModal: context.openCreateModal,
+    openEditModal: context.openSlider,
+    closeAllModals: context.closeAll,
+    showSlider: context.showSlider,
+    selectedProduct: context.selectedProduct,
+    closeSlider: context.closeSlider
+  }
 }

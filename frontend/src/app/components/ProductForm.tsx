@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, RefObject } from 'react'
 import { createProductAction, updateProductAction } from '@/app/actions/products'
 import type { Product } from '@/lib/api-client'
 import { Input } from './ui/Input'
@@ -11,12 +11,20 @@ interface ProductFormProps {
   product?: Product
   onSuccess?: () => void
   onCancel: () => void
+  hideActions?: boolean
+  formRef?: RefObject<HTMLFormElement | null>
 }
 
-export default function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
+export default function ProductForm({
+  product,
+  onSuccess,
+  onCancel,
+  hideActions = false,
+  formRef
+}: ProductFormProps) {
   const isEdit = !!product
   const action = isEdit ? updateProductAction : createProductAction
-  
+
   const [state, formAction, isPending] = useActionState(action, null)
 
   // Handle successful submission
@@ -27,7 +35,11 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
   }, [state?.success, onSuccess])
 
   return (
-    <form action={formAction} className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
+    <form
+      ref={formRef}
+      action={formAction}
+      className="space-y-6 max-h-[80vh] overflow-y-auto px-1"
+    >
       {/* Hidden product ID for edit mode */}
       {isEdit && (
         <input type="hidden" name="product_id" value={product.id} />
@@ -172,24 +184,26 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       )}
 
       {/* Actions */}
-      <div className="flex justify-end space-x-3 pt-4 pb-1 border-t border-gray-200">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onCancel}
-        >
-          Abbrechen
-        </Button>
-        
-        <Button
-          type="submit"
-          variant="primary"
-          loading={isPending}
-          disabled={isPending}
-        >
-          {isPending ? 'Speichert...' : isEdit ? 'Produkt aktualisieren' : 'Produkt erstellen'}
-        </Button>
-      </div>
+      {!hideActions && (
+        <div className="flex justify-end space-x-3 pt-4 pb-1 border-t border-gray-200">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+          >
+            Abbrechen
+          </Button>
+
+          <Button
+            type="submit"
+            variant="primary"
+            loading={isPending}
+            disabled={isPending}
+          >
+            {isPending ? 'Speichert...' : isEdit ? 'Produkt aktualisieren' : 'Produkt erstellen'}
+          </Button>
+        </div>
+      )}
     </form>
   )
 }

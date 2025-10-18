@@ -1,6 +1,8 @@
-import { ProductModalProvider } from '../components/providers/ProductModalProvider'
+import { ProductUIProvider } from '../components/providers/ProductModalProvider'
 import TopBar from '../components/TopBar'
 import ProductsTable from '../components/ProductsTable'
+import ProductSlider from '../components/ProductSlider'
+import PageContent from './PageContent'
 import { api, Product } from '@/lib/api-client'
 
 export const dynamic = 'force-dynamic'
@@ -38,19 +40,24 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   }
 
   return (
-    <ProductModalProvider>
-      <div className="flex-1 flex flex-col">
-        <TopBar />
-        <main className="flex-1 p-4">
-          <ProductsTable 
-            products={products}
-            totalProducts={totalProducts}
-            currentPage={page}
-            search={search}
-            error={error}
-          />
-        </main>
-      </div>
-    </ProductModalProvider>
+    <ProductUIProvider>
+      <PageContent>
+        {[
+          <div key="main" className="flex-1 flex flex-col">
+            <TopBar />
+            <main className="flex-1">
+              <ProductsTable
+                products={products}
+                totalProducts={totalProducts}
+                currentPage={page}
+                search={search}
+                error={error}
+              />
+            </main>
+          </div>,
+          <ProductSlider key="sidebar" />
+        ]}
+      </PageContent>
+    </ProductUIProvider>
   )
 }

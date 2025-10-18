@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Product as ApiProduct } from '@/lib/api-client'
-import { useProductModal } from './providers/ProductModalProvider'
+import { useProductUI } from './providers/ProductModalProvider'
 import Modal from './Modal'
 import ProductForm from './ProductForm'
 import { Button } from './ui/Button'
@@ -73,13 +73,12 @@ interface ProductsTableProps {
 
 export default function ProductsTable({ products: apiProducts, totalProducts, currentPage, search, error }: ProductsTableProps) {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
+  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null)
   const {
     showCreateModal,
-    showEditModal,
-    editingProduct,
-    openEditModal,
-    closeAllModals
-  } = useProductModal()
+    openSlider,
+    closeAll
+  } = useProductUI()
   
   // Transform API products to table format
   const products = apiProducts.map(transformApiProduct)
@@ -108,15 +107,19 @@ export default function ProductsTable({ products: apiProducts, totalProducts, cu
     setSelectedRows(newSelected)
   }
 
-  const handleEditProduct = (productId: string) => {
+  const handleViewProduct = (productId: string) => {
     const product = apiProducts.find(p => p.id.toString() === productId)
     if (product) {
-      openEditModal(product)
+      openSlider(product)
     }
   }
 
+  const handleRowClick = (productId: string) => {
+    handleViewProduct(productId)
+  }
+
   const handleModalSuccess = () => {
-    closeAllModals()
+    closeAll()
     // Data will be refreshed automatically by revalidatePath in server action
   }
 
@@ -143,10 +146,10 @@ export default function ProductsTable({ products: apiProducts, totalProducts, cu
   return (
     <div className="bg-white overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full">
+        <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="w-12 px-4 py-3 text-left">
+              <th className="sticky left-0 z-20 w-12 px-4 py-3 text-left bg-white border-r border-gray-200">
                 <input
                   type="checkbox"
                   checked={selectedRows.size === products.length}
@@ -154,48 +157,51 @@ export default function ProductsTable({ products: apiProducts, totalProducts, cu
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
               </th>
-              <th className="px-4 py-3 text-left">
+              <th className="sticky left-12 z-20 min-w-[220px] px-4 py-3 text-left bg-white border-r border-gray-200">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Typ</span>
                   <Icon name="ChevronDown" size="xs" />
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+              <th className="min-w-[260px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Produktname</span>
                   <Icon name="ChevronDown" size="xs" />
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+              <th className="min-w-[240px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Marke/Modell</span>
                   <Icon name="ChevronDown" size="xs" />
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+              <th className="min-w-[160px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Preis</span>
                   <Icon name="ChevronDown" size="xs" />
                 </button>
               </th>
-              <th className="px-4 py-3 text-left">
+              <th className="min-w-[150px] px-4 py-3 text-left">
                 <button className="flex items-center space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
                   <span>Status</span>
                   <Icon name="ChevronDown" size="xs" />
                 </button>
               </th>
-              <th className="px-4 py-3 text-right">
-                <div className="flex items-center justify-end space-x-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <span>Aktionen</span>
-                  <Icon name="ChevronDown" size="xs" />
-                </div>
-              </th>
             </tr>
           </thead>
           <tbody className="bg-white">
             {products.map((product) => (
-              <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="px-4 py-3">
+              <tr
+                key={product.id}
+                onClick={() => handleRowClick(product.id)}
+                onMouseEnter={() => setHoveredRowId(product.id)}
+                onMouseLeave={() => setHoveredRowId(null)}
+                className="relative border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors group"
+              >
+                <td
+                  onClick={(e) => e.stopPropagation()}
+                  className="sticky left-0 z-10 px-4 py-3 bg-white group-hover:bg-gray-50 border-r border-gray-200 transition-colors"
+                >
                   <input
                     type="checkbox"
                     checked={selectedRows.has(product.id)}
@@ -203,7 +209,7 @@ export default function ProductsTable({ products: apiProducts, totalProducts, cu
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                 </td>
-                <td className="px-4 py-3">
+                <td className="sticky left-12 z-10 min-w-[220px] px-4 py-3 bg-white group-hover:bg-gray-50 border-r border-gray-200 transition-colors">
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mr-3">
                       <Icon name={getProductTypeIcon(product.type)} size="sm" className="text-white" />
@@ -211,44 +217,40 @@ export default function ProductsTable({ products: apiProducts, totalProducts, cu
                     <div className="text-sm font-medium text-gray-900">{product.type}</div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                <td className="min-w-[260px] px-4 py-3 text-sm text-gray-900 font-medium">
                   {product.name}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
+                <td className="min-w-[240px] px-4 py-3 text-sm text-gray-700">
                   {product.brand}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                <td className="min-w-[160px] px-4 py-3 text-sm text-gray-900 font-medium">
                   {product.price}
                 </td>
-                <td className="px-4 py-3">
+                <td className="min-w-[150px] px-4 py-3">
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    product.status === 'Aktiv' 
-                      ? 'bg-green-100 text-green-800' 
+                    product.status === 'Aktiv'
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
                     {product.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleEditProduct(product.id)}
-                      iconName="Pencil"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      iconName="Eye"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      iconName="EllipsisVertical"
-                    />
-                  </div>
-                </td>
+
+                {hoveredRowId === product.id && (
+                  <td className="absolute right-4 top-1/2 -translate-y-1/2 z-30">
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1 bg-white rounded-lg shadow-md border border-primary-medium"
+                    >
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        iconName="EllipsisVertical"
+                        className="text-gray-500 hover:text-gray-700"
+                      />
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -314,28 +316,13 @@ export default function ProductsTable({ products: apiProducts, totalProducts, cu
       {/* Create Product Modal - controlled by TopBar button via context */}
       <Modal
         isOpen={showCreateModal}
-        onClose={closeAllModals}
+        onClose={closeAll}
         title="Neues Produkt erstellen"
       >
         <ProductForm
           onSuccess={handleModalSuccess}
-          onCancel={closeAllModals}
+          onCancel={closeAll}
         />
-      </Modal>
-
-      {/* Edit Product Modal - controlled by table edit buttons */}
-      <Modal
-        isOpen={showEditModal}
-        onClose={closeAllModals}
-        title="Produkt bearbeiten"
-      >
-        {editingProduct && (
-          <ProductForm
-            product={editingProduct}
-            onSuccess={handleModalSuccess}
-            onCancel={closeAllModals}
-          />
-        )}
       </Modal>
     </div>
   )

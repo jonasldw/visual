@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCustomerModal } from './providers/CustomerUIProvider'
-import { useProductModal } from './providers/ProductModalProvider'
+import { useProductUI } from './providers/ProductModalProvider'
 import { Button } from './ui/Button'
 
 // Page configuration for dynamic behavior
@@ -15,9 +15,9 @@ const pageConfig = {
     searchPlaceholder: 'Kunden suchen...'
   },
   '/products': {
-    title: 'Produkte', 
+    title: 'Produkte',
     buttonText: 'Neues Produkt',
-    useModalHook: () => useProductModal(),
+    useModalHook: () => useProductUI(),
     searchPlaceholder: 'Produkte suchen...'
   }
 }
