@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { Invoice as ApiInvoice } from '@/lib/api-client'
+import type { Invoice as ApiInvoice, InvoiceStatus } from '@/lib/api-client'
 import { useInvoiceUI } from './providers/InvoiceUIProvider'
 import Modal from './Modal'
 import InvoiceForm from './InvoiceForm'
@@ -22,12 +22,12 @@ interface TableInvoice {
   customerName: string
   invoiceDate: string
   totalAmount: string
-  status: ApiInvoice['status']
+  status: InvoiceStatus
   statusLabel: string
   customerEmail: string | null
 }
 
-const STATUS_LABELS: Record<ApiInvoice['status'], string> = {
+const STATUS_LABELS: Record<InvoiceStatus, string> = {
   draft: 'Entwurf',
   sent: 'Versendet',
   paid: 'Bezahlt',
@@ -36,7 +36,7 @@ const STATUS_LABELS: Record<ApiInvoice['status'], string> = {
   cancelled: 'Storniert'
 }
 
-const STATUS_CLASSES: Record<ApiInvoice['status'], string> = {
+const STATUS_CLASSES: Record<InvoiceStatus, string> = {
   draft: 'bg-slate-100 text-slate-700',
   sent: 'bg-blue-50 text-blue-600',
   paid: 'bg-emerald-50 text-emerald-600',
