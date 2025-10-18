@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCustomerModal } from './providers/CustomerUIProvider'
 import { useProductModal } from './providers/ProductModalProvider'
+import { useInvoiceModal } from './providers/InvoiceUIProvider'
 import { Button } from './ui/Button'
 
 // Page configuration for dynamic behavior
@@ -15,10 +16,16 @@ const pageConfig = {
     searchPlaceholder: 'Kunden suchen...'
   },
   '/products': {
-    title: 'Produkte', 
+    title: 'Produkte',
     buttonText: 'Neues Produkt',
     useModalHook: () => useProductModal(),
     searchPlaceholder: 'Produkte suchen...'
+  },
+  '/invoices': {
+    title: 'Rechnungen',
+    buttonText: 'Neue Rechnung',
+    useModalHook: () => useInvoiceModal(),
+    searchPlaceholder: 'Rechnungen suchen...'
   }
 }
 

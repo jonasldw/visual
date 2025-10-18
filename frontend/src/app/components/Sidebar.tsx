@@ -19,6 +19,12 @@ const mainNavItems = [
     href: '/products',
     icon: <Icon name="Package" size="sm" />,
   },
+  {
+    id: 'invoices',
+    label: 'Rechnungen',
+    href: '/invoices',
+    icon: <Icon name="Receipt" size="sm" />,
+  },
 ]
 
 
